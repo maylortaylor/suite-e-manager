@@ -14,6 +14,7 @@ import {
   ChipRemove,
   ChipRow,
   Container,
+  Divider,
   Input,
   ItemBox,
   ItemLabel,
@@ -21,7 +22,6 @@ import {
 } from "@/app/components/ui/styled.components";
 import React, { useState } from "react";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Collapsible } from "../../components/ui/Collapsible";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
@@ -29,42 +29,46 @@ import { useTheme } from "styled-components/native";
 
 const globalChecklists = require("../../../global.checklists.json");
 
-export function EditTaskListsScreen() {
-  const [taskLists, setTaskLists] = useState<any[]>(globalChecklists.taskLists);
-  const [saving, setSaving] = useState(false);
+export function EditTaskListsScreen({
+  taskLists,
+  setTaskLists,
+  updateTaskList,
+  saving,
+  handleSave,
+  tasks,
+}: {
+  taskLists: any[];
+  setTaskLists: (value: any[] | ((prev: any[]) => any[])) => void;
+  updateTaskList: (index: number, key: string, value: string) => void;
+  saving: boolean;
+  handleSave: () => void;
+  tasks: any[];
+}) {
   const theme = useTheme();
   const [taskSearch, setTaskSearch] = useState<string>("");
   const [activeTaskDropdown, setActiveTaskDropdown] = useState<number | null>(
     null
   );
-  const allTasks = globalChecklists.tasks;
+  const allTasks = tasks;
 
-  async function handleSave() {
-    setSaving(true);
-    try {
-      const currentData = await AsyncStorage.getItem("global.checklists.json");
-      const parsedData = currentData
-        ? JSON.parse(currentData)
-        : globalChecklists;
-      await AsyncStorage.setItem(
-        "global.checklists.json",
-        JSON.stringify({ ...parsedData, taskLists })
-      );
-      Alert.alert("Saved", "Task list data saved to storage.");
-    } catch (e) {
-      Alert.alert("Error", "Failed to save data.");
-    }
-    setSaving(false);
+  function generateTaskListId() {
+    return (
+      "TL-" +
+      Math.random().toString(36).substr(2, 8) +
+      "-" +
+      Math.random().toString(36).substr(2, 4) +
+      "-" +
+      Math.random().toString(36).substr(2, 4)
+    );
   }
 
-  function updateTaskList(index: number, key: string, value: string) {
-    const updated = [...taskLists];
-    if (key === "taskIds") {
-      updated[index] = { ...updated[index], taskIds: value.split(",") };
-    } else {
-      updated[index] = { ...updated[index], [key]: value };
-    }
-    setTaskLists(updated);
+  function handleAddTaskList() {
+    const newTaskList = {
+      id: generateTaskListId(),
+      name: "",
+      taskIds: [],
+    };
+    setTaskLists((prev: any[]) => [...prev, newTaskList]);
   }
 
   return (
@@ -72,7 +76,7 @@ export function EditTaskListsScreen() {
       <Label fontSize={32}>Task Lists</Label>
       <Container>
         {taskLists.map((tl: any, i: number) => (
-          <Collapsible key={tl.id} title={tl.name}>
+          <Collapsible key={tl.id} title={tl.name || "(New Task List)"}>
             <View
               style={{
                 flexDirection: "row",
@@ -82,7 +86,11 @@ export function EditTaskListsScreen() {
             >
               <TouchableOpacity
                 onPress={async () => {
-                  await Clipboard.setStringAsync(tl.id);
+                  if (Clipboard.setStringAsync) {
+                    await Clipboard.setStringAsync(tl.id);
+                  } else {
+                    Clipboard.setString(tl.id);
+                  }
                   Alert.alert("Copied", "Task List ID copied to clipboard");
                 }}
                 style={{ marginRight: 6 }}
@@ -159,6 +167,19 @@ export function EditTaskListsScreen() {
             </ItemBox>
           </Collapsible>
         ))}
+        <Button
+          title={saving ? "Saving..." : "+ ADD TASK LIST"}
+          onPress={handleAddTaskList}
+          disabled={saving}
+        />
+        <Divider
+          style={{
+            marginVertical: 16,
+            height: 2,
+            backgroundColor: theme.colors.divider,
+            width: "100%",
+          }}
+        />
         <Button
           title={saving ? "Saving..." : "Save All"}
           onPress={handleSave}

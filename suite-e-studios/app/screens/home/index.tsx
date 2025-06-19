@@ -6,19 +6,23 @@ import {
   ActionButton,
   ActionButtonText,
   BottomBar,
+  Container,
   DashboardBox,
   Divider,
   HomeContainer,
+  Label,
   RoleText,
   WelcomeText,
 } from "@/app/components/ui/styled.components";
-import { Animated, StyleSheet } from "react-native";
+import { Animated, ScrollView, StyleSheet } from "react-native";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ChecklistList } from "../../components/checklist";
 import { LoginForm } from "../../components/auth";
 import type { MainStackParamList } from "../../navigation/main-stack";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useChecklist } from "../../context/checklist-context";
+import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 import { useUser } from "../../context/user-context";
 
@@ -43,6 +47,12 @@ export function HomeScreen({ navigation }: Props) {
   const leftAnim = React.useRef(new Animated.Value(0)).current;
   const changeRoleAnim = React.useRef(new Animated.Value(0)).current;
   const rightAnim = React.useRef(new Animated.Value(0)).current;
+  const [allChecklists, setAllChecklists] = React.useState<any[]>([]);
+  const [allRoles, setAllRoles] = React.useState<string[]>([]);
+  const [randomChecklist, setRandomChecklist] = React.useState<any | null>(
+    null
+  );
+  const [randomRole, setRandomRole] = React.useState<string | null>(null);
 
   const fadeOut = (anim: Animated.Value) => {
     Animated.timing(anim, {
@@ -111,6 +121,53 @@ export function HomeScreen({ navigation }: Props) {
     }, 800);
   }
 
+  // Load checklists and roles from AsyncStorage on focus
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+      async function load() {
+        try {
+          const stored = await AsyncStorage.getItem("global.checklists.json");
+          const rolesStored = await AsyncStorage.getItem("task-roles");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (isActive) setAllChecklists(parsed.checklists || []);
+          }
+          if (rolesStored) {
+            if (isActive) setAllRoles(JSON.parse(rolesStored));
+          }
+        } catch {}
+      }
+      load();
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
+
+  // Shuffle function
+  function shuffleCombo() {
+    if (allChecklists.length > 0) {
+      setRandomChecklist(
+        allChecklists[Math.floor(Math.random() * allChecklists.length)]
+      );
+    } else {
+      setRandomChecklist(null);
+    }
+    if (allRoles.length > 0) {
+      setRandomRole(allRoles[Math.floor(Math.random() * allRoles.length)]);
+    } else {
+      setRandomRole(null);
+    }
+  }
+
+  // Shuffle on first load of checklists/roles
+  React.useEffect(() => {
+    if (allChecklists.length && allRoles.length) {
+      shuffleCombo();
+    }
+  }, [allChecklists, allRoles]);
+
   if (!state.user) {
     return (
       <LoginForm
@@ -124,42 +181,59 @@ export function HomeScreen({ navigation }: Props) {
   // Role-based dashboard placeholder
   return (
     <HomeContainer>
-      <WelcomeText>Welcome, {state.user.name}!</WelcomeText>
-      <RoleText>Role: {getRoleLabel(state.user.roleId)}</RoleText>
-      <DashboardBox>
-        {state.user.roleId === "admin" && (
-          <RoleText>Admin dashboard coming soon…</RoleText>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 120 }}
+        style={{ flex: 1 }}
+      >
+        <WelcomeText>Welcome, {state.user.name}!</WelcomeText>
+        {randomChecklist && randomRole && (
+          <DashboardBox>
+            <RoleText>
+              <b>Random Checklist:</b> {randomChecklist.name || "(Unnamed)"}
+            </RoleText>
+            <RoleText>
+              <b>Random Role:</b> {randomRole}
+            </RoleText>
+          </DashboardBox>
         )}
-        {state.user.roleId === "sound-engineer" && (
-          <RoleText>Sound Engineer dashboard coming soon…</RoleText>
-        )}
-        {state.user.roleId === "event-producer" && (
-          <RoleText>Event Producer dashboard coming soon…</RoleText>
-        )}
-        {state.user.roleId === "door-person" && (
-          <RoleText>Door Person dashboard coming soon…</RoleText>
-        )}
-        {state.user.roleId === "bar-person" && (
-          <RoleText>Bar Person dashboard coming soon…</RoleText>
-        )}
-        {![
-          "admin",
-          "sound-engineer",
-          "event-producer",
-          "door-person",
-          "bar-person",
-        ].includes(state.user.roleId) && (
-          <RoleText>General user dashboard coming soon…</RoleText>
-        )}
-      </DashboardBox>
-      <ChecklistList />
+        {/* Restore the original dashboard and checklist UI */}
+        {/* <DashboardBox>
+          {state.user.roleId === "admin" && (
+            <RoleText>Admin dashboard coming soon…</RoleText>
+          )}
+          {state.user.roleId === "sound-engineer" && (
+            <RoleText>Sound Engineer dashboard coming soon…</RoleText>
+          )}
+          {state.user.roleId === "event-producer" && (
+            <RoleText>Event Producer dashboard coming soon…</RoleText>
+          )}
+          {state.user.roleId === "door-person" && (
+            <RoleText>Door Person dashboard coming soon…</RoleText>
+          )}
+          {state.user.roleId === "bar-person" && (
+            <RoleText>Bar Person dashboard coming soon…</RoleText>
+          )}
+          {![
+            "admin",
+            "sound-engineer",
+            "event-producer",
+            "door-person",
+            "bar-person",
+          ].includes(state.user.roleId) && (
+            <RoleText>General user dashboard coming soon…</RoleText>
+          )}
+        </DashboardBox> */}
+        <ChecklistList
+          checklist={randomChecklist}
+          taskLists={globalChecklists.taskLists}
+          tasks={globalChecklists.tasks}
+        />
+      </ScrollView>
       <BottomBar>
         <ActionButton
           accessibilityRole="button"
           activeOpacity={1.4}
-          onPress={() =>
-            navigation.navigate("Settings")
-          }
+          onPress={() => navigation.navigate("Settings")}
           onPressIn={() => {
             setPressedButton("settings");
             fadeIn(leftAnim);
@@ -191,47 +265,7 @@ export function HomeScreen({ navigation }: Props) {
             setPressedButton(null);
             fadeOut(changeRoleAnim);
           }}
-          onPress={() => {
-            const newRole = randomRoleId();
-            dispatch({
-              type: "LOGIN",
-              user: {
-                ...state.user!,
-                roleId: newRole,
-              },
-            });
-            // Find the global checklist for this role
-            const checklist = globalChecklists.checklists.find(
-              (c: any) => c.role === newRole && c.isGlobal
-            );
-            if (checklist) {
-              const taskListTaskIds = (checklist.taskListIds || []).flatMap(
-                (tlid: string) => {
-                  const tl = globalChecklists.taskLists.find(
-                    (t: any) => t.id === tlid
-                  );
-                  return tl ? tl.taskIds : [];
-                }
-              );
-              const allTaskIds = Array.from(
-                new Set([
-                  ...(taskListTaskIds || []),
-                  ...(checklist.taskIds || []),
-                ])
-              );
-              const tasks = globalChecklists.tasks.filter((t: any) =>
-                allTaskIds.includes(t.id)
-              );
-              checklistCtx.dispatch({ type: "SET_TASKS", tasks });
-              checklistCtx.dispatch({
-                type: "SET_CHECKLISTS",
-                checklists: [{ ...checklist, taskIds: allTaskIds }],
-              });
-            } else {
-              checklistCtx.dispatch({ type: "SET_TASKS", tasks: [] });
-              checklistCtx.dispatch({ type: "SET_CHECKLISTS", checklists: [] });
-            }
-          }}
+          onPress={shuffleCombo}
         >
           <Animated.View
             style={{

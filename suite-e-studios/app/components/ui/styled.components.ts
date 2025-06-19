@@ -15,7 +15,7 @@ export const Input = styled.TextInput<{ theme: DefaultTheme }>`
   padding: 8px;
   margin-top: 4px;
   margin-bottom: 8px;
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
   width: 100%;
   placeholdertextcolor: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.mutedText};
@@ -60,7 +60,7 @@ export const ActionButtonText = styled.Text<{
   active?: boolean;
   theme: DefaultTheme;
 }>`
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
   color: ${({ active, theme }: { active?: boolean; theme: DefaultTheme }) =>
     active ? theme.colors.input : theme.colors.text};
   font-weight: ${({ active }: { active?: boolean }) =>
@@ -95,7 +95,7 @@ export const Label = styled.Text<{
   theme: DefaultTheme;
   fontSize?: number;
 }>`
-  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 24}px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 46}px;
   margin-right: 16px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
 `;
@@ -130,7 +130,7 @@ export const ChipButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 
 export const ChipText = styled.Text<{ theme: DefaultTheme }>`
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.input};
-  font-size: 14px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 24}px;
   margin-right: 4px;
 `;
 
@@ -151,10 +151,10 @@ export const ChecklistBox = styled.View<{ theme: DefaultTheme }>`
 `;
 
 export const ChecklistTitle = styled.Text<{ theme: DefaultTheme }>`
-  font-size: 18px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 36}px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
 `;
 
 export const TaskRow = styled.View`
@@ -164,7 +164,7 @@ export const TaskRow = styled.View`
 `;
 
 export const TaskText = styled.Text<{ complete: boolean; theme: DefaultTheme }>`
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 28}px;
   color: ${({ complete, theme }: { complete: boolean; theme: DefaultTheme }) =>
     complete ? theme.colors.divider : theme.colors.lightText};
   text-decoration-line: ${({ complete }: { complete: boolean }) =>
@@ -199,7 +199,7 @@ export const Row = styled.View`
 `;
 
 export const SectionTitle = styled.Text<{ theme: DefaultTheme }>`
-  font-size: 20px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 20}px;
   font-weight: 600;
   margin-bottom: 16px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.primary};
@@ -224,7 +224,7 @@ export const AuthInput = styled.TextInput<{ theme: DefaultTheme }>`
   placeholderTextColor: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.mutedText};
   border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.divider};
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.input};
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
@@ -241,7 +241,7 @@ export const AuthButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 
 export const AuthButtonText = styled.Text<{ theme: DefaultTheme }>`
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
   font-weight: 600;
 `;
 
@@ -260,14 +260,14 @@ export const HomeContainer = styled.View<{ theme: DefaultTheme }>`
 `;
 
 export const WelcomeText = styled.Text<{ theme: DefaultTheme }>`
-  font-size: 22px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 28}px;
   font-weight: 600;
   margin-bottom: 16px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
 `;
 
 export const RoleText = styled.Text<{ theme: DefaultTheme }>`
-  font-size: 18px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 28}px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
   margin-bottom: 24px;
 `;
@@ -292,7 +292,7 @@ export const HomeButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 
 export const HomeButtonText = styled.Text<{ theme: DefaultTheme }>`
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
   font-weight: 600;
 `;
 
@@ -307,7 +307,7 @@ export const SettingsButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 
 export const SettingsButtonText = styled.Text<{ theme: DefaultTheme }>`
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
   font-weight: 600;
 `;
 
@@ -333,7 +333,7 @@ export const UserIcon = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 `;
 
 export const UserIconText = styled.Text`
-  font-size: 22px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 22}px;
 `;
 
 export const MenuModal = styled.Modal``;
@@ -359,7 +359,7 @@ export const MenuButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 `;
 
 export const MenuButtonText = styled.Text<{ theme: DefaultTheme }>`
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
 `;
 
@@ -376,7 +376,7 @@ export const Chip = styled.View<{ theme: DefaultTheme }>`
 
 export const ChipLabel = styled.Text<{ theme: DefaultTheme }>`
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.input};
-  font-size: 14px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 24}px;
   margin-right: 4px;
 `;
 
@@ -412,7 +412,7 @@ export const SuggestionItem = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 
 export const SuggestionText = styled.Text<{ theme: DefaultTheme }>`
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
-  font-size: 16px;
+  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
 `;
 
 export const CenteredSuggestionDropdown = styled.View<{ theme: DefaultTheme }>`

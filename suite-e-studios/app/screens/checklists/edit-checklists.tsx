@@ -1,6 +1,6 @@
 /** @format */
 
-import { Alert, Button, ScrollView } from "react-native";
+import { Button, ScrollView } from "react-native";
 import {
   Chip,
   ChipLabel,
@@ -12,22 +12,40 @@ import {
   ItemLabel,
   Label,
 } from "@/app/components/ui/styled.components";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Collapsible } from "../../components/ui/Collapsible";
+import { Divider } from "@/app/components/ui/styled.components";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 
 const globalChecklists = require("../../../global.checklists.json");
 
-export function EditChecklistsScreen() {
-  const [checklists, setChecklists] = useState<any[]>(
-    globalChecklists.checklists
-  );
-  const [saving, setSaving] = useState(false);
+export function EditChecklistsScreen({
+  checklists,
+  setChecklists,
+  updateChecklist,
+  saving,
+  handleSave,
+  tasks,
+  taskLists,
+}: {
+  checklists: any[];
+  setChecklists: (value: any[] | ((prev: any[]) => any[])) => void;
+  updateChecklist: (
+    index: number,
+    key: string,
+    value: string | string[]
+  ) => void;
+  saving: boolean;
+  handleSave: () => void;
+  tasks: any[];
+  taskLists: any[];
+}) {
   const theme = useTheme();
   // For autocomplete state
   const [taskListSearch, setTaskListSearch] = useState<string>("");
@@ -38,8 +56,8 @@ export function EditChecklistsScreen() {
   const [activeTaskDropdown, setActiveTaskDropdown] = useState<number | null>(
     null
   );
-  const allTaskLists = globalChecklists.taskLists;
-  const allTasks = globalChecklists.tasks;
+  const allTaskLists = taskLists;
+  const allTasks = tasks;
   const [roles, setRoles] = useState<string[]>([
     "sound-engineer",
     "event-producer",
@@ -47,50 +65,45 @@ export function EditChecklistsScreen() {
     "bar-person",
   ]);
 
-  useEffect(() => {
-    (async () => {
-      const role = await AsyncStorage.getItem("task-roles");
-      if (role) {
-        try {
-          setRoles(JSON.parse(role));
-        } catch {}
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      async function load() {
+        const role = await AsyncStorage.getItem("task-roles");
+        if (role && isActive) {
+          try {
+            setRoles(JSON.parse(role));
+          } catch {}
+        }
       }
-    })();
-  }, []);
+      load();
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
-  async function handleSave() {
-    setSaving(true);
-    try {
-      const currentData = await AsyncStorage.getItem("global.checklists.json");
-      const parsedData = currentData
-        ? JSON.parse(currentData)
-        : globalChecklists;
-      await AsyncStorage.setItem(
-        "global.checklists.json",
-        JSON.stringify({ ...parsedData, checklists })
-      );
-      Alert.alert("Saved", "Checklist data saved to storage.");
-    } catch (e) {
-      Alert.alert("Error", "Failed to save data.");
-    }
-    setSaving(false);
+  function generateChecklistId() {
+    return (
+      "CL-" +
+      Math.random().toString(36).substr(2, 8) +
+      "-" +
+      Math.random().toString(36).substr(2, 4) +
+      "-" +
+      Math.random().toString(36).substr(2, 4)
+    );
   }
 
-  function updateChecklist(
-    index: number,
-    key: string,
-    value: string | string[]
-  ) {
-    const updated = [...checklists];
-    if (key === "taskListIds" || key === "taskIds") {
-      updated[index] = {
-        ...updated[index],
-        [key]: Array.isArray(value) ? value : value.split(","),
-      };
-    } else {
-      updated[index] = { ...updated[index], [key]: value };
-    }
-    setChecklists(updated);
+  function handleAddChecklist() {
+    const newChecklist = {
+      id: generateChecklistId(),
+      name: "",
+      role: roles[0] || "",
+      isGlobal: false,
+      taskListIds: [],
+      taskIds: [],
+    };
+    setChecklists((prev: any[]) => [...prev, newChecklist]);
   }
 
   return (
@@ -98,7 +111,7 @@ export function EditChecklistsScreen() {
       <Label fontSize={32}>Checklists</Label>
       <Container>
         {checklists.map((c: any, i: number) => (
-          <Collapsible key={c.id} title={c.name}>
+          <Collapsible key={c.id} title={c.name || "(New Checklist)"}>
             <ItemBox>
               <ItemLabel>Name</ItemLabel>
               <Input
@@ -212,6 +225,19 @@ export function EditChecklistsScreen() {
             </ItemBox>
           </Collapsible>
         ))}
+        <Button
+          title={saving ? "Saving..." : "+ ADD CHECKLIST"}
+          onPress={handleAddChecklist}
+          disabled={saving}
+        />
+        <Divider
+          style={{
+            marginVertical: 16,
+            height: 2,
+            backgroundColor: theme.colors.divider,
+            width: "100%",
+          }}
+        />
         <Button
           title={saving ? "Saving..." : "Save All"}
           onPress={handleSave}

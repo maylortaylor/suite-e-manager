@@ -2,9 +2,8 @@
 
 import * as Clipboard from "expo-clipboard";
 
+import { Alert, Button, ScrollView, View } from "react-native";
 import {
-  ActionButton,
-  ActionButtonText,
   Container,
   Divider,
   Input,
@@ -12,14 +11,14 @@ import {
   ItemLabel,
   Label,
 } from "@/app/components/ui/styled.components";
-import { Alert, Button, ScrollView, View } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Collapsible } from "../../components/ui/Collapsible";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { TouchableOpacity } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 
 const globalChecklists = require("../../../global.checklists.json");
@@ -45,54 +44,47 @@ function generateTaskId() {
   );
 }
 
-export function EditTasksScreen() {
-  const [tasks, setTasks] = useState<any[]>(globalChecklists.tasks);
-  const [saving, setSaving] = useState(false);
+export function EditTasksScreen({
+  tasks,
+  setTasks,
+  updateTask,
+  saving,
+  handleSave,
+}: {
+  tasks: any[];
+  setTasks: (value: any[] | ((prev: any[]) => any[])) => void;
+  updateTask: (index: number, key: string, value: string) => void;
+  saving: boolean;
+  handleSave: () => void;
+}) {
   const [adding, setAdding] = useState(false);
   const theme = useTheme();
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
   const [roles, setRoles] = useState<string[]>(DEFAULT_ROLES);
 
-  useEffect(() => {
-    (async () => {
-      const cat = await AsyncStorage.getItem(CATEGORY_KEY);
-      if (cat) {
-        try {
-          setCategories(JSON.parse(cat));
-        } catch {}
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      async function load() {
+        const cat = await AsyncStorage.getItem(CATEGORY_KEY);
+        if (cat && isActive) {
+          try {
+            setCategories(JSON.parse(cat));
+          } catch {}
+        }
+        const role = await AsyncStorage.getItem(ROLE_KEY);
+        if (role && isActive) {
+          try {
+            setRoles(JSON.parse(role));
+          } catch {}
+        }
       }
-      const role = await AsyncStorage.getItem(ROLE_KEY);
-      if (role) {
-        try {
-          setRoles(JSON.parse(role));
-        } catch {}
-      }
-    })();
-  }, []);
-
-  async function handleSave() {
-    setSaving(true);
-    try {
-      const currentData = await AsyncStorage.getItem("global.checklists.json");
-      const parsedData = currentData
-        ? JSON.parse(currentData)
-        : globalChecklists;
-      await AsyncStorage.setItem(
-        "global.checklists.json",
-        JSON.stringify({ ...parsedData, tasks })
-      );
-      Alert.alert("Saved", "Tasks data saved to storage.");
-    } catch (e) {
-      Alert.alert("Error", "Failed to save data.");
-    }
-    setSaving(false);
-  }
-
-  function updateTask(index: number, key: string, value: string) {
-    const updated = [...tasks];
-    updated[index] = { ...updated[index], [key]: value };
-    setTasks(updated);
-  }
+      load();
+      return () => {
+        isActive = false;
+      };
+    }, [])
+  );
 
   function handleAddTask() {
     setAdding(true);
@@ -147,14 +139,20 @@ export function EditTasksScreen() {
               <StyledPicker
                 value={t.category}
                 onValueChange={(v: string) => updateTask(i, "category", v)}
-                items={categories.map((cat) => ({ label: cat, value: cat }))}
+                items={categories.map((cat: string) => ({
+                  label: cat,
+                  value: cat,
+                }))}
                 placeholder="Select category..."
               />
               <ItemLabel>Role</ItemLabel>
               <StyledPicker
                 value={t.role}
                 onValueChange={(v: string) => updateTask(i, "role", v)}
-                items={roles.map((role) => ({ label: role, value: role }))}
+                items={roles.map((role: string) => ({
+                  label: role,
+                  value: role,
+                }))}
                 placeholder="Select role..."
               />
             </ItemBox>
