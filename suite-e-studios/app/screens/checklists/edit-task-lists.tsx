@@ -1,93 +1,122 @@
 /** @format */
 
-import {
-  Alert,
-  Button,
-  ScrollView as RNScrollView,
-  ScrollView,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Button, ScrollView, View } from "react-native";
 import {
   Chip,
   ChipLabel,
   ChipRemove,
   ChipRow,
   Container,
-  Divider,
   Input,
   ItemBox,
   ItemLabel,
   Label,
 } from "@/app/components/ui/styled.components";
-import React, { useState } from "react";
 
 import { Collapsible } from "../../components/ui/Collapsible";
+import { Divider } from "@/app/components/ui/Divider";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
+import React from "react";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
+import type { Task } from "../../../types/task";
+import type { TaskList } from "../../../types/task-list";
+import { toast } from "../../../utils/toast";
+import { useChecklist } from "../../context/checklist-context";
 import { useTheme } from "styled-components/native";
 
-const globalChecklists = require("../../../global.checklists.json");
-
-export function EditTaskListsScreen({
-  taskLists,
-  setTaskLists,
-  updateTaskList,
-  saving,
-  handleSave,
-  tasks,
-}: {
-  taskLists: any[];
-  setTaskLists: (value: any[] | ((prev: any[]) => any[])) => void;
-  updateTaskList: (index: number, key: string, value: string) => void;
-  saving: boolean;
-  handleSave: () => void;
-  tasks: any[];
-}) {
-  const theme = useTheme();
-  const [taskSearch, setTaskSearch] = useState<string>("");
-  const [activeTaskDropdown, setActiveTaskDropdown] = useState<number | null>(
-    null
+function generateTaskListId() {
+  return (
+    "TL-" +
+    Math.random().toString(36).substr(2, 8) +
+    "-" +
+    Math.random().toString(36).substr(2, 4) +
+    "-" +
+    Math.random().toString(36).substr(2, 4)
   );
-  const allTasks = tasks;
+}
 
-  function generateTaskListId() {
-    return (
-      "TL-" +
-      Math.random().toString(36).substr(2, 8) +
-      "-" +
-      Math.random().toString(36).substr(2, 4) +
-      "-" +
-      Math.random().toString(36).substr(2, 4)
-    );
-  }
+export function EditTaskListsScreen() {
+  const theme = useTheme();
+  const { state, dispatch } = useChecklist();
 
   function handleAddTaskList() {
-    const newTaskList = {
+    const newTaskList: TaskList = {
       id: generateTaskListId(),
       name: "",
       taskIds: [],
     };
-    setTaskLists((prev: any[]) => [...prev, newTaskList]);
+    dispatch({ type: "ADD_TASK_LIST", taskList: newTaskList });
+  }
+
+  function handleUpdateTaskList(
+    index: number,
+    key: string,
+    value: string | string[]
+  ) {
+    const updatedTaskList = {
+      ...state.taskLists[index],
+      [key]: value,
+    };
+    dispatch({
+      type: "UPDATE_TASK_LIST",
+      taskList: updatedTaskList as TaskList,
+    });
+  }
+
+  async function handleSave() {
+    try {
+      dispatch({ type: "SET_LOADING", isLoading: true });
+      dispatch({
+        type: "SAVE_ALL",
+        data: {
+          tasks: state.tasks,
+          taskLists: state.taskLists,
+          checklists: state.checklists,
+        },
+      });
+      toast.success("Task lists saved successfully");
+    } catch (e) {
+      toast.error("Failed to save task lists");
+      dispatch({ type: "SET_ERROR", error: e as Error });
+    } finally {
+      dispatch({ type: "SET_LOADING", isLoading: false });
+    }
+  }
+
+  if (state.isLoading) {
+    return (
+      <Container>
+        <Label>Loading task lists...</Label>
+      </Container>
+    );
+  }
+
+  if (state.error) {
+    return (
+      <Container>
+        <Label>Error: {state.error.message}</Label>
+        <Button title="Retry" onPress={handleSave} />
+      </Container>
+    );
   }
 
   return (
     <ScrollView>
       <Label>Task Lists</Label>
       <Container>
-        {taskLists.map((tl: any, i: number) => (
+        {state.taskLists.map((tl: TaskList, i: number) => (
           <Collapsible key={tl.id} title={tl.name || "(New Task List)"}>
             <ItemBox>
               <ItemLabel>Name</ItemLabel>
               <Input
                 value={tl.name}
-                onChangeText={(v: string) => updateTaskList(i, "name", v)}
+                onChangeText={(v: string) => handleUpdateTaskList(i, "name", v)}
               />
               <ItemLabel>Tasks</ItemLabel>
               <View style={{ position: "relative", marginBottom: 16 }}>
                 <ChipRow>
                   {tl.taskIds.map((id: string) => {
-                    const t = allTasks.find((t: any) => t.id === id);
+                    const t = state.tasks.find((t: Task) => t.id === id);
                     return (
                       <Chip key={id} theme={theme}>
                         <ChipLabel theme={theme}>
@@ -96,12 +125,10 @@ export function EditTaskListsScreen({
                         <ChipRemove
                           theme={theme}
                           onPress={() => {
-                            updateTaskList(
+                            handleUpdateTaskList(
                               i,
                               "taskIds",
-                              tl.taskIds
-                                .filter((tid: string) => tid !== id)
-                                .join(",")
+                              tl.taskIds.filter((tid: string) => tid !== id)
                             );
                           }}
                         >
@@ -119,16 +146,15 @@ export function EditTaskListsScreen({
                   value={""}
                   onValueChange={(taskId: string) => {
                     if (taskId) {
-                      updateTaskList(
-                        i,
-                        "taskIds",
-                        [...tl.taskIds, taskId].join(",")
-                      );
+                      handleUpdateTaskList(i, "taskIds", [
+                        ...tl.taskIds,
+                        taskId,
+                      ]);
                     }
                   }}
-                  items={allTasks
-                    .filter((t: any) => !tl.taskIds.includes(t.id))
-                    .map((t: { description: string; id: string }) => ({
+                  items={state.tasks
+                    .filter((t: Task) => !tl.taskIds.includes(t.id))
+                    .map((t: Task) => ({
                       label: t.description,
                       value: t.id,
                     }))}
@@ -139,22 +165,30 @@ export function EditTaskListsScreen({
           </Collapsible>
         ))}
         <Button
-          title={saving ? "Saving..." : "+ ADD TASK LIST"}
+          title={state.isLoading ? "Adding..." : "+ ADD TASK LIST"}
           onPress={handleAddTaskList}
-          disabled={saving}
+          disabled={state.isLoading}
         />
         <Divider
-          style={{
-            marginVertical: 16,
-            height: 2,
-            backgroundColor: theme.colors.divider,
-            width: "100%",
-          }}
+          orientation="horizontal"
+          thickness={1}
+          length={8}
+          marginVertical={40}
+          marginHorizontal={40}
+          color={theme.colors.divider}
         />
         <Button
-          title={saving ? "Saving..." : "Save All"}
+          title={state.isLoading ? "Saving..." : "Save All"}
           onPress={handleSave}
-          disabled={saving}
+          disabled={state.isLoading}
+        />
+        <Divider
+          orientation="horizontal"
+          thickness={1}
+          length={8}
+          marginVertical={40}
+          marginHorizontal={40}
+          color={theme.colors.divider}
         />
       </Container>
     </ScrollView>

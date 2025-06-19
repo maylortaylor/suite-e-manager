@@ -7,7 +7,6 @@ import {
   ActionButtonText,
   BottomBar,
   DashboardBox,
-  Divider,
   HomeContainer,
   RoleText,
   WelcomeText,
@@ -19,40 +18,20 @@ import {
 } from "../../../utils/storage";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { Checklist } from "../../../types/checklist";
 import { ChecklistList } from "../../components/checklist";
+import { Divider } from "@/app/components/ui/Divider";
 import { LoginForm } from "../../components/auth";
 import type { MainStackParamList } from "../../navigation/main-stack";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import type { Task } from "../../../types/task";
+import type { TaskList } from "../../../types/task-list";
 import { useChecklist } from "../../context/checklist-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 import { useUser } from "../../context/user-context";
 
 const globalChecklists = require("../../../global.checklists.json");
-
-interface Task {
-  id: string;
-  description: string;
-  category: string;
-  role: string;
-}
-
-interface TaskList {
-  id: string;
-  name: string;
-  taskIds: string[];
-}
-
-interface Checklist {
-  id: string;
-  name: string;
-  role: string;
-  isGlobal: boolean;
-  taskListIds: string[];
-  taskIds: string[];
-  taskLists?: TaskList[];
-  tasks?: Task[];
-}
 
 function getRoleLabel(roleId: string) {
   if (roleId === "admin") return "Admin";
@@ -135,13 +114,22 @@ export function HomeScreen({ navigation }: Props) {
           const tasks = globalChecklists.tasks.filter((t: any) =>
             allTaskIds.includes(t.id)
           );
-          checklistCtx.dispatch({ type: "SET_TASKS", tasks });
+          // Load all task lists and tasks into context
+          checklistCtx.dispatch({
+            type: "SET_TASKS",
+            tasks: globalChecklists.tasks,
+          });
+          checklistCtx.dispatch({
+            type: "SET_TASK_LISTS",
+            taskLists: globalChecklists.taskLists,
+          });
           checklistCtx.dispatch({
             type: "SET_CHECKLISTS",
             checklists: [{ ...checklist, taskIds: allTaskIds }],
           });
         } else {
           checklistCtx.dispatch({ type: "SET_TASKS", tasks: [] });
+          checklistCtx.dispatch({ type: "SET_TASK_LISTS", taskLists: [] });
           checklistCtx.dispatch({ type: "SET_CHECKLISTS", checklists: [] });
         }
       } else {
@@ -252,12 +240,17 @@ export function HomeScreen({ navigation }: Props) {
             </RoleText>
           </DashboardBox>
         )}
-        <ChecklistList
-          checklist={randomChecklist}
-          taskLists={randomChecklist?.taskLists || []}
-          tasks={randomChecklist?.tasks || []}
-        />
+        <ChecklistList checklist={randomChecklist} />
       </ScrollView>
+      <Divider
+        orientation="horizontal"
+        thickness={1}
+        length={8}
+        marginVertical={40}
+        marginHorizontal={40}
+        color={theme.colors.divider}
+      />
+
       <BottomBar>
         <ActionButton
           accessibilityRole="button"
@@ -282,7 +275,13 @@ export function HomeScreen({ navigation }: Props) {
           />
           <ActionButtonText>Settings</ActionButtonText>
         </ActionButton>
-        <Divider />
+        <Divider
+          orientation="vertical"
+          thickness={1}
+          length={8}
+          marginHorizontal={8}
+          color={theme.colors.divider}
+        />
         <ActionButton
           accessibilityRole="button"
           activeOpacity={1.4}
@@ -306,7 +305,13 @@ export function HomeScreen({ navigation }: Props) {
           />
           <ActionButtonText>Change Role</ActionButtonText>
         </ActionButton>
-        <Divider />
+        <Divider
+          orientation="vertical"
+          thickness={1}
+          length={8}
+          marginHorizontal={8}
+          color={theme.colors.divider}
+        />
         <ActionButton
           accessibilityRole="button"
           activeOpacity={1.4}

@@ -1,6 +1,6 @@
 /** @format */
 
-import { Button, ScrollView } from "react-native";
+import { Button, ScrollView, View } from "react-native";
 import {
   Chip,
   ChipLabel,
@@ -12,138 +12,127 @@ import {
   ItemLabel,
   Label,
 } from "@/app/components/ui/styled.components";
-import React, { useCallback, useEffect, useState } from "react";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import type { Checklist } from "../../../types/checklist";
 import { Collapsible } from "../../components/ui/Collapsible";
-import { Divider } from "@/app/components/ui/styled.components";
+import { Divider } from "@/app/components/ui/Divider";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
+import React from "react";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
-import { View } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import type { TaskList } from "../../../types/task-list";
+import { toast } from "../../../utils/toast";
+import { useChecklist } from "../../context/checklist-context";
 import { useTheme } from "styled-components/native";
 
-const globalChecklists = require("../../../global.checklists.json");
+function generateChecklistId() {
+  return (
+    "CL-" +
+    Math.random().toString(36).substr(2, 8) +
+    "-" +
+    Math.random().toString(36).substr(2, 4) +
+    "-" +
+    Math.random().toString(36).substr(2, 4)
+  );
+}
 
-export function EditChecklistsScreen({
-  checklists,
-  setChecklists,
-  updateChecklist,
-  saving,
-  handleSave,
-  tasks,
-  taskLists,
-}: {
-  checklists: any[];
-  setChecklists: (value: any[] | ((prev: any[]) => any[])) => void;
-  updateChecklist: (
-    index: number,
-    key: string,
-    value: string | string[]
-  ) => void;
-  saving: boolean;
-  handleSave: () => void;
-  tasks: any[];
-  taskLists: any[];
-}) {
+export function EditChecklistsScreen() {
   const theme = useTheme();
-  // For autocomplete state
-  const [taskListSearch, setTaskListSearch] = useState<string>("");
-  const [taskSearch, setTaskSearch] = useState<string>("");
-  const [activeTaskListDropdown, setActiveTaskListDropdown] = useState<
-    number | null
-  >(null);
-  const [activeTaskDropdown, setActiveTaskDropdown] = useState<number | null>(
-    null
-  );
-  const allTaskLists = taskLists;
-  const allTasks = tasks;
-  const [roles, setRoles] = useState<string[]>([
-    "sound-engineer",
-    "event-producer",
-    "door-person",
-    "bar-person",
-  ]);
-
-  useFocusEffect(
-    useCallback(() => {
-      let isActive = true;
-      async function load() {
-        const role = await AsyncStorage.getItem("task-roles");
-        if (role && isActive) {
-          try {
-            setRoles(JSON.parse(role));
-          } catch {}
-        }
-      }
-      load();
-      return () => {
-        isActive = false;
-      };
-    }, [])
-  );
-
-  function generateChecklistId() {
-    return (
-      "CL-" +
-      Math.random().toString(36).substr(2, 8) +
-      "-" +
-      Math.random().toString(36).substr(2, 4) +
-      "-" +
-      Math.random().toString(36).substr(2, 4)
-    );
-  }
+  const { state, dispatch } = useChecklist();
 
   function handleAddChecklist() {
-    const newChecklist = {
+    const newChecklist: Checklist = {
       id: generateChecklistId(),
       name: "",
-      role: roles[0] || "",
-      isGlobal: false,
       taskListIds: [],
       taskIds: [],
     };
-    setChecklists((prev: any[]) => [...prev, newChecklist]);
+    dispatch({ type: "ADD_CHECKLIST", checklist: newChecklist });
+  }
+
+  function handleUpdateChecklist(
+    index: number,
+    key: string,
+    value: string | string[]
+  ) {
+    const updatedChecklist = {
+      ...state.checklists[index],
+      [key]: value,
+    };
+    dispatch({
+      type: "UPDATE_CHECKLIST",
+      checklist: updatedChecklist as Checklist,
+    });
+  }
+
+  async function handleSave() {
+    try {
+      dispatch({ type: "SET_LOADING", isLoading: true });
+      dispatch({
+        type: "SAVE_ALL",
+        data: {
+          tasks: state.tasks,
+          taskLists: state.taskLists,
+          checklists: state.checklists,
+        },
+      });
+      toast.success("Checklists saved successfully");
+    } catch (e) {
+      toast.error("Failed to save checklists");
+      dispatch({ type: "SET_ERROR", error: e as Error });
+    } finally {
+      dispatch({ type: "SET_LOADING", isLoading: false });
+    }
+  }
+
+  if (state.isLoading) {
+    return (
+      <Container>
+        <Label>Loading checklists...</Label>
+      </Container>
+    );
+  }
+
+  if (state.error) {
+    return (
+      <Container>
+        <Label>Error: {state.error.message}</Label>
+        <Button title="Retry" onPress={handleSave} />
+      </Container>
+    );
   }
 
   return (
     <ScrollView>
       <Label>Checklists</Label>
       <Container>
-        {checklists.map((c: any, i: number) => (
-          <Collapsible key={c.id} title={c.name || "(New Checklist)"}>
+        {state.checklists.map((cl: Checklist, i: number) => (
+          <Collapsible key={cl.id} title={cl.name || "(New Checklist)"}>
             <ItemBox>
               <ItemLabel>Name</ItemLabel>
               <Input
-                value={c.name}
-                onChangeText={(v: string) => updateChecklist(i, "name", v)}
-              />
-              <ItemLabel>Role</ItemLabel>
-              <StyledPicker
-                value={c.role}
-                onValueChange={(v: string) => updateChecklist(i, "role", v)}
-                items={roles.map((role: string) => ({
-                  label: role,
-                  value: role,
-                }))}
-                placeholder="Select role..."
+                value={cl.name}
+                onChangeText={(v: string) =>
+                  handleUpdateChecklist(i, "name", v)
+                }
               />
               <ItemLabel>Task Lists</ItemLabel>
               <View style={{ position: "relative", marginBottom: 16 }}>
                 <ChipRow>
-                  {(c.taskListIds || []).map((id: string) => {
-                    const tl = allTaskLists.find((tl: any) => tl.id === id);
+                  {cl.taskListIds.map((id: string) => {
+                    const tl = state.taskLists.find(
+                      (tl: TaskList) => tl.id === id
+                    );
                     return (
                       <Chip key={id} theme={theme}>
                         <ChipLabel theme={theme}>{tl ? tl.name : id}</ChipLabel>
                         <ChipRemove
                           theme={theme}
                           onPress={() => {
-                            updateChecklist(
+                            handleUpdateChecklist(
                               i,
                               "taskListIds",
-                              (c.taskListIds || []).filter(
-                                (tid: string) => tid !== id
+                              cl.taskListIds.filter(
+                                (tlid: string) => tlid !== id
                               )
                             );
                           }}
@@ -162,37 +151,38 @@ export function EditChecklistsScreen({
                   value={""}
                   onValueChange={(taskListId: string) => {
                     if (taskListId) {
-                      updateChecklist(i, "taskListIds", [
-                        ...(c.taskListIds || []),
+                      handleUpdateChecklist(i, "taskListIds", [
+                        ...cl.taskListIds,
                         taskListId,
                       ]);
                     }
                   }}
-                  items={allTaskLists
-                    .filter((tl: any) => !(c.taskListIds || []).includes(tl.id))
-                    .map((tl: any) => ({ label: tl.name, value: tl.id }))}
+                  items={state.taskLists
+                    .filter((tl: TaskList) => !cl.taskListIds.includes(tl.id))
+                    .map((tl: TaskList) => ({
+                      label: tl.name,
+                      value: tl.id,
+                    }))}
                   placeholder="Add task list by name..."
                 />
               </View>
-              <ItemLabel>Tasks</ItemLabel>
+              <ItemLabel>Individual Tasks</ItemLabel>
               <View style={{ position: "relative", marginBottom: 16 }}>
                 <ChipRow>
-                  {(c.taskIds || []).map((id: string) => {
-                    const t = allTasks.find((t: any) => t.id === id);
+                  {(cl.taskIds || []).map((id: string) => {
+                    const task = state.tasks.find((t) => t.id === id);
                     return (
                       <Chip key={id} theme={theme}>
                         <ChipLabel theme={theme}>
-                          {t ? t.description : id}
+                          {task ? task.description : id}
                         </ChipLabel>
                         <ChipRemove
                           theme={theme}
                           onPress={() => {
-                            updateChecklist(
+                            handleUpdateChecklist(
                               i,
                               "taskIds",
-                              (c.taskIds || []).filter(
-                                (tid: string) => tid !== id
-                              )
+                              (cl.taskIds || []).filter((tid) => tid !== id)
                             );
                           }}
                         >
@@ -210,15 +200,18 @@ export function EditChecklistsScreen({
                   value={""}
                   onValueChange={(taskId: string) => {
                     if (taskId) {
-                      updateChecklist(i, "taskIds", [
-                        ...(c.taskIds || []),
+                      handleUpdateChecklist(i, "taskIds", [
+                        ...(cl.taskIds || []),
                         taskId,
                       ]);
                     }
                   }}
-                  items={allTasks
-                    .filter((t: any) => !(c.taskIds || []).includes(t.id))
-                    .map((t: any) => ({ label: t.description, value: t.id }))}
+                  items={state.tasks
+                    .filter((t) => !(cl.taskIds || []).includes(t.id))
+                    .map((t) => ({
+                      label: t.description,
+                      value: t.id,
+                    }))}
                   placeholder="Add task by description..."
                 />
               </View>
@@ -226,22 +219,30 @@ export function EditChecklistsScreen({
           </Collapsible>
         ))}
         <Button
-          title={saving ? "Saving..." : "+ ADD CHECKLIST"}
+          title={state.isLoading ? "Adding..." : "+ ADD CHECKLIST"}
           onPress={handleAddChecklist}
-          disabled={saving}
+          disabled={state.isLoading}
         />
         <Divider
-          style={{
-            marginVertical: 16,
-            height: 2,
-            backgroundColor: theme.colors.divider,
-            width: "100%",
-          }}
+          orientation="horizontal"
+          thickness={1}
+          length={8}
+          marginVertical={40}
+          marginHorizontal={40}
+          color={theme.colors.divider}
         />
         <Button
-          title={saving ? "Saving..." : "Save All"}
+          title={state.isLoading ? "Saving..." : "Save All"}
           onPress={handleSave}
-          disabled={saving}
+          disabled={state.isLoading}
+        />
+        <Divider
+          orientation="horizontal"
+          thickness={1}
+          length={8}
+          marginVertical={40}
+          marginHorizontal={40}
+          color={theme.colors.divider}
         />
       </Container>
     </ScrollView>

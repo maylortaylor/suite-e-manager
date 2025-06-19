@@ -7,21 +7,25 @@ import {
   ActionButtonText,
   BottomBar,
   Container,
-  Divider,
 } from "@/app/components/ui/styled.components";
 import { useCallback, useState } from "react";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 
 import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Button } from "@/app/components/ui/Button";
+import { ChecklistBox } from "@/app/components/ui/ChecklistBox";
+import { Divider } from "@/app/components/ui/Divider";
 import { EditChecklistsScreen } from "./edit-checklists";
 import { EditTaskListsScreen } from "./edit-task-lists";
 import { EditTasksScreen } from "./edit-tasks";
 import { View } from "react-native";
+import { useTheme } from "styled-components/native";
 
 const defaultChecklists = require("../../../global.checklists.json");
 
 export function ChecklistsScreen() {
+  const theme = useTheme();
   const route = useRoute();
   const initialTab =
     (route.params && (route.params as any).initialTab) || "checklists";
@@ -173,7 +177,13 @@ export function ChecklistsScreen() {
           </ActionButtonText>
         </ActionButton>
 
-        <Divider />
+        <Divider
+          orientation="vertical"
+          thickness={1}
+          length={8}
+          marginHorizontal={8}
+          color={theme.colors.divider}
+        />
 
         <ActionButton
           onPress={() => setActiveTab("tasklists")}
@@ -184,8 +194,13 @@ export function ChecklistsScreen() {
           </ActionButtonText>
         </ActionButton>
 
-        <Divider />
-
+        <Divider
+          orientation="vertical"
+          thickness={1}
+          length={8}
+          marginHorizontal={8}
+          color={theme.colors.divider}
+        />
         <ActionButton
           onPress={() => setActiveTab("checklists")}
           active={activeTab === "checklists"}

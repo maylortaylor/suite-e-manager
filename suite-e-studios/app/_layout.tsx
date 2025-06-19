@@ -11,6 +11,7 @@ import {
   DefaultTheme as NavigationDefaultTheme,
   ThemeProvider as NavigationThemeProvider,
 } from "@react-navigation/native";
+import Toast, { BaseToast, ToastConfig } from "react-native-toast-message";
 
 import { ChecklistProvider } from "./context/checklist-context";
 import { MainStack } from "./navigation/main-stack";
@@ -59,10 +60,62 @@ const navLightTheme = {
   fonts: NavigationDefaultTheme.fonts,
 };
 
+const toastConfig: ToastConfig = {
+  success: ({ text1, text2, ...rest }) => (
+    <BaseToast
+      {...rest}
+      style={{ borderLeftColor: themeJson.light.accent }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 16,
+        fontWeight: "600",
+      }}
+      text2Style={{
+        fontSize: 14,
+      }}
+      text1={text1}
+      text2={text2}
+    />
+  ),
+  error: ({ text1, text2, ...rest }) => (
+    <BaseToast
+      {...rest}
+      style={{ borderLeftColor: "#E53935" }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 16,
+        fontWeight: "600",
+      }}
+      text2Style={{
+        fontSize: 14,
+      }}
+      text1={text1}
+      text2={text2}
+    />
+  ),
+  info: ({ text1, text2, ...rest }) => (
+    <BaseToast
+      {...rest}
+      style={{ borderLeftColor: themeJson.light.primary }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 16,
+        fontWeight: "600",
+      }}
+      text2Style={{
+        fontSize: 14,
+      }}
+      text1={text1}
+      text2={text2}
+    />
+  ),
+};
+
 export default function RootLayout() {
   return (
     <AppThemeProvider>
       <RootLayoutInner />
+      <Toast config={toastConfig} />
     </AppThemeProvider>
   );
 }
