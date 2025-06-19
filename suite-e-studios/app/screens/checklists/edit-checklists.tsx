@@ -108,7 +108,7 @@ export function EditChecklistsScreen({
 
   return (
     <ScrollView>
-      <Label fontSize={32}>Checklists</Label>
+      <Label>Checklists</Label>
       <Container>
         {checklists.map((c: any, i: number) => (
           <Collapsible key={c.id} title={c.name || "(New Checklist)"}>

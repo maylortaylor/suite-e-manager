@@ -343,4 +343,87 @@ export function SettingsScreen() {
 ## Success Criteria
 - Settings page allows full management of categories and roles.
 - All relevant forms use these lists as dropdowns.
-- Changes persist and are reflected throughout the app. 
+- Changes persist and are reflected throughout the app.
+
+# Feature: UI Size Toggle Implementation
+
+## Background & Motivation
+- Users need the ability to adjust text size across the app for better readability
+- Current implementation has hardcoded font sizes in styled components
+- Need to implement a toggle between "Comfy" (default) and "Large" (20% larger) sizes
+
+## Key Challenges & Analysis
+- **Theme Integration:** Need to extend the theme context to include UI size preference
+- **Font Size Scaling:** All text components need to respect the UI size setting
+- **Persistence:** UI size preference should persist across app restarts
+- **Accessibility:** Ensure the implementation follows accessibility best practices
+- **Component Updates:** Need to modify styled components to use dynamic font sizes
+
+## High-level Task Breakdown
+1. **Theme Context Extension**
+   - [ ] Add UI size type and context value to theme context
+   - [ ] Add UI size toggle function to context
+   - [ ] Implement AsyncStorage persistence for UI size preference
+   - Success: Theme context provides and persists UI size preference
+
+2. **Styled Components Updates**
+   - [ ] Create a font size scaling utility function
+   - [ ] Update all text-based styled components to use dynamic font sizes
+   - [ ] Test that all components respond to size changes
+   - Success: All text components scale properly with UI size changes
+
+3. **Settings UI Implementation**
+   - [ ] Add UI size toggle section to settings screen
+   - [ ] Implement toggle between "Comfy" and "Large" sizes
+   - [ ] Add visual feedback for current selection
+   - Success: Users can toggle between size options with immediate visual feedback
+
+4. **Testing & Validation**
+   - [ ] Test persistence across app restarts
+   - [ ] Verify all text components scale correctly
+   - [ ] Check accessibility features work with both sizes
+   - Success: Feature works reliably and maintains accessibility
+
+## Implementation Details
+
+### Theme Context Updates
+```typescript
+type UISize = "comfy" | "large";
+
+interface ThemeContextValue {
+  // ... existing theme context values ...
+  uiSize: UISize;
+  setUISize: (size: UISize) => void;
+}
+```
+
+### Font Size Scaling Function
+```typescript
+const getScaledFontSize = (baseSize: number, uiSize: UISize) => {
+  return uiSize === "large" ? baseSize * 1.2 : baseSize;
+};
+```
+
+### Styled Component Example
+```typescript
+export const Label = styled.Text<{
+  theme: DefaultTheme;
+  fontSize?: number;
+}>`
+  font-size: ${({ fontSize, theme }) => 
+    getScaledFontSize(fontSize || 16, theme.uiSize)}px;
+  // ... other styles
+`;
+```
+
+## Project Status Board Updates
+- [ ] Add UI size type and context value to theme context
+- [ ] Add UI size toggle function to context
+- [ ] Implement AsyncStorage persistence for UI size preference
+- [ ] Create font size scaling utility function
+- [ ] Update text-based styled components
+- [ ] Add UI size toggle to settings screen
+- [ ] Test persistence and scaling
+- [ ] Validate accessibility
+
+// ... existing code ... 

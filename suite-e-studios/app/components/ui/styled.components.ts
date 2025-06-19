@@ -1,5 +1,7 @@
 /** @format */
 
+import { FontSizes, getScaledFontSize } from "@/utils/font-scaling";
+
 import type { DefaultTheme } from "styled-components";
 import { Dimensions } from "react-native";
 import styled from "styled-components/native";
@@ -11,17 +13,27 @@ export const Input = styled.TextInput<{ theme: DefaultTheme }>`
     theme.colors.input};
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
   border: 1px solid #e0e7ef;
-  border-radius: 6px;
-  padding: 8px;
-  margin-top: 4px;
-  margin-bottom: 8px;
-  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
+  border-radius: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.borderRadius.base}px;
+  padding: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.sm}px;
+  margin-top: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.xs}px;
+  margin-bottom: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.sm}px;
+  font-size: ${({
+    fontSize,
+    theme,
+  }: {
+    fontSize?: number;
+    theme: DefaultTheme;
+  }) =>
+    getScaledFontSize(fontSize || theme.global.fontSize.base, theme.uiSize)}px;
   width: 100%;
   placeholdertextcolor: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.mutedText};
 `;
 
-export const BottomBar = styled.View`
+export const BottomBar = styled.View<{ theme: DefaultTheme }>`
   position: absolute;
   left: 0;
   right: 0;
@@ -31,7 +43,9 @@ export const BottomBar = styled.View`
   align-items: center;
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.input};
-  padding: 12px 0;
+  padding: ${({ theme }: { theme: DefaultTheme }) =>
+      theme.global.spacing.base}px
+    0;
   border-top-width: 1px;
   border-top-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.input};
@@ -44,9 +58,12 @@ export const ActionButton = styled.TouchableOpacity<{
   flex: 1;
   align-items: center;
   justify-content: center;
-  height: 48px;
-  border-radius: 12px;
-  margin: 0px 12px 0px 12px;
+  height: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing["2xl"]}px;
+  border-radius: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.borderRadius.lg}px;
+  margin: 0px
+    ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.base}px;
   background-color: ${({
     active,
     theme,
@@ -60,7 +77,14 @@ export const ActionButtonText = styled.Text<{
   active?: boolean;
   theme: DefaultTheme;
 }>`
-  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;
+  font-size: ${({
+    fontSize,
+    theme,
+  }: {
+    fontSize?: number;
+    theme: DefaultTheme;
+  }) =>
+    getScaledFontSize(fontSize || theme.global.fontSize.base, theme.uiSize)}px;
   color: ${({ active, theme }: { active?: boolean; theme: DefaultTheme }) =>
     active ? theme.colors.input : theme.colors.text};
   font-weight: ${({ active }: { active?: boolean }) =>
@@ -76,7 +100,7 @@ export const Divider = styled.View`
 
 export const Container = styled.View<{ theme: DefaultTheme }>`
   flex: 1;
-  padding: 16px;
+  padding: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.md}px;
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.background};
 `;
@@ -84,9 +108,11 @@ export const Container = styled.View<{ theme: DefaultTheme }>`
 export const ItemBox = styled.View<{ theme: DefaultTheme }>`
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.secondary};
-  border-radius: 10px;
-  padding: 8px;
-  margin-bottom: 8px;
+  border-radius: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.borderRadius.base}px;
+  padding: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.sm}px;
+  margin-bottom: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.sm}px;
   width: 100%;
   align-self: stretch;
 `;
@@ -95,8 +121,19 @@ export const Label = styled.Text<{
   theme: DefaultTheme;
   fontSize?: number;
 }>`
-  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 46}px;
-  margin-right: 16px;
+  font-size: ${({
+    fontSize,
+    theme,
+  }: {
+    fontSize?: number;
+    theme: DefaultTheme;
+  }) =>
+    getScaledFontSize(
+      fontSize || theme.global.fontSize["xl"],
+      theme.uiSize
+    )}px;
+  margin-right: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.md}px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
 `;
 
@@ -104,17 +141,26 @@ export const ItemLabel = styled.Text<{
   theme: DefaultTheme;
   fontSize?: number;
 }>`
-  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 20}px;
+  font-size: ${({
+    fontSize,
+    theme,
+  }: {
+    fontSize?: number;
+    theme: DefaultTheme;
+  }) =>
+    getScaledFontSize(fontSize || theme.global.fontSize.md, theme.uiSize)}px;
   font-weight: 500;
-  margin-bottom: 8px;
+  margin-bottom: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.sm}px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
 `;
 
-export const ChipsRow = styled.View`
+export const ChipsRow = styled.View<{ theme: DefaultTheme }>`
   flex-direction: row;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.sm}px;
+  margin-bottom: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.sm}px;
 `;
 
 export const ChipButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
@@ -122,10 +168,14 @@ export const ChipButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
   align-items: center;
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.accent};
-  border-radius: 16px;
-  padding: 4px 10px 4px 8px;
-  margin-right: 6px;
-  margin-bottom: 6px;
+  border-radius: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.borderRadius.xl}px;
+  padding: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.xs}px
+    ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.base}px;
+  margin-right: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.xs}px;
+  margin-bottom: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.xs}px;
 `;
 
 export const ChipText = styled.Text<{ theme: DefaultTheme }>`
@@ -164,7 +214,13 @@ export const TaskRow = styled.View`
 `;
 
 export const TaskText = styled.Text<{ complete: boolean; theme: DefaultTheme }>`
-  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 28}px;
+  font-size: ${({
+    fontSize,
+    theme,
+  }: {
+    fontSize?: number;
+    theme: DefaultTheme;
+  }) => getScaledFontSize(fontSize || FontSizes.heading, theme.uiSize)}px;
   color: ${({ complete, theme }: { complete: boolean; theme: DefaultTheme }) =>
     complete ? theme.colors.mutedText : theme.colors.lightText};
   text-decoration-line: ${({ complete }: { complete: boolean }) =>
@@ -199,7 +255,13 @@ export const Row = styled.View`
 `;
 
 export const SectionTitle = styled.Text<{ theme: DefaultTheme }>`
-  font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 20}px;
+  font-size: ${({
+    fontSize,
+    theme,
+  }: {
+    fontSize?: number;
+    theme: DefaultTheme;
+  }) => getScaledFontSize(fontSize || FontSizes.subtitle, theme.uiSize)}px;
   font-weight: 600;
   margin-bottom: 16px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.primary};

@@ -23,10 +23,12 @@ import { useColorScheme } from "react-native";
 
 const darkTheme = {
   colors: themeJson.dark,
+  global: themeJson.global,
 };
 
 const lightTheme = {
   colors: themeJson.light,
+  global: themeJson.global,
 };
 
 const navDarkTheme = {
@@ -42,6 +44,7 @@ const navDarkTheme = {
   },
   fonts: NavigationDarkTheme.fonts,
 };
+
 const navLightTheme = {
   dark: false,
   colors: {
@@ -65,9 +68,13 @@ export default function RootLayout() {
 }
 
 function RootLayoutInner() {
-  const { colorScheme } = useThemeMode();
-  const theme = colorScheme === "dark" ? darkTheme : lightTheme;
+  const { colorScheme, uiSize } = useThemeMode();
+  const theme = {
+    ...(colorScheme === "dark" ? darkTheme : lightTheme),
+    uiSize,
+  };
   const navTheme = colorScheme === "dark" ? navDarkTheme : navLightTheme;
+
   return (
     <PortalProvider>
       <StyledThemeProvider theme={theme}>

@@ -26,8 +26,6 @@ import { UserMenu } from "@/app/components/ui/UserMenu";
 import { useTheme } from "styled-components/native";
 import { useThemeMode } from "../../context/theme-context";
 
-const UI_SIZE_KEY = "ui-size";
-const DARK_MODE_KEY = "dark-mode";
 const CATEGORY_KEY = "task-categories";
 const ROLE_KEY = "task-roles";
 
@@ -39,12 +37,9 @@ const DEFAULT_ROLES = [
   "bar-person",
 ];
 
-type UiSize = "comfy" | "large";
-
 export function SettingsScreen() {
-  const { mode, setMode } = useThemeMode();
+  const { mode, setMode, uiSize, setUISize } = useThemeMode();
   const theme = useTheme();
-  const [uiSize, setUiSize] = useState<UiSize>("comfy");
 
   // Categories and roles state
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
@@ -56,9 +51,6 @@ export function SettingsScreen() {
   const maxListHeight = Dimensions.get("window").height * 0.25;
 
   useEffect(() => {
-    getSetting(UI_SIZE_KEY).then((value) => {
-      if (value === "large" || value === "comfy") setUiSize(value);
-    });
     getSetting(CATEGORY_KEY).then((value) => {
       if (value) {
         try {
@@ -76,9 +68,7 @@ export function SettingsScreen() {
   }, []);
 
   function handleUiSizeToggle() {
-    const newSize = uiSize === "comfy" ? "large" : "comfy";
-    setUiSize(newSize);
-    saveSetting(UI_SIZE_KEY, newSize);
+    setUISize(uiSize === "comfy" ? "large" : "comfy");
   }
 
   function addCategory() {
@@ -210,7 +200,9 @@ export function SettingsScreen() {
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
               <Row>
-                <Label style={{ flex: 1 }} fontSize={24}>{item}</Label>
+                <Label style={{ flex: 1 }} fontSize={24}>
+                  {item}
+                </Label>
                 <TouchableOpacity onPress={() => removeRole(item)}>
                   <ActionButtonText
                     theme={theme}

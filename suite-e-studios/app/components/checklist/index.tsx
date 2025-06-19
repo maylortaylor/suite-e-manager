@@ -84,7 +84,7 @@ export function ChecklistList({
         {/* Direct tasks */}
         {checklist.taskIds?.length > 0 && (
           <Container>
-            <Label fontSize={32}>General Tasks</Label>
+            <Label>General Tasks</Label>
             {checklist.taskIds.map((taskId: string) => {
               const task = allTasks.find((t: Task) => t.id === taskId);
               if (!task) return null;
@@ -110,7 +110,7 @@ export function ChecklistList({
           if (!tl) return null;
           return (
             <ChecklistBox key={tl.id}>
-              <Label fontSize={32}>{tl.name}</Label>
+              <Label>{tl.name}</Label>
               {tl.taskIds.map((taskId: string) => {
                 const task = allTasks.find((t: Task) => t.id === taskId);
                 if (!task) return null;

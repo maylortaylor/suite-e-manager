@@ -73,7 +73,7 @@ export function EditTaskListsScreen({
 
   return (
     <ScrollView>
-      <Label fontSize={32}>Task Lists</Label>
+      <Label>Task Lists</Label>
       <Container>
         {taskLists.map((tl: any, i: number) => (
           <Collapsible key={tl.id} title={tl.name || "(New Task List)"}>
