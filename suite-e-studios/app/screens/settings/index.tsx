@@ -169,7 +169,9 @@ export function SettingsScreen() {
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
               <Row>
-                <Label style={{ flex: 1 }}>{item}</Label>
+                <Label style={{ flex: 1 }} fontSize={24}>
+                  {item}
+                </Label>
                 <TouchableOpacity onPress={() => removeCategory(item)}>
                   <ActionButtonText
                     theme={theme}
@@ -208,7 +210,7 @@ export function SettingsScreen() {
             keyExtractor={(item) => item}
             renderItem={({ item }) => (
               <Row>
-                <Label style={{ flex: 1 }}>{item}</Label>
+                <Label style={{ flex: 1 }} fontSize={24}>{item}</Label>
                 <TouchableOpacity onPress={() => removeRole(item)}>
                   <ActionButtonText
                     theme={theme}
