@@ -1,7 +1,5 @@
 /** @format */
 
-import * as React from "react";
-
 import {
   Alert,
   Button,
@@ -11,7 +9,6 @@ import {
   View,
 } from "react-native";
 import {
-  CenteredSuggestionDropdown,
   Chip,
   ChipLabel,
   ChipRemove,
@@ -21,29 +18,25 @@ import {
   ItemBox,
   ItemLabel,
   Label,
-  SuggestionDropdown,
-  SuggestionItem,
-  SuggestionText,
 } from "@/app/components/ui/styled.components";
+import React, { useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Collapsible } from "../../components/ui/Collapsible";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
-import { Portal } from "@gorhom/portal";
+import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { useTheme } from "styled-components/native";
 
 const globalChecklists = require("../../../global.checklists.json");
 
 export function EditTaskListsScreen() {
-  const [taskLists, setTaskLists] = React.useState<any[]>(
-    globalChecklists.taskLists
-  );
-  const [saving, setSaving] = React.useState(false);
+  const [taskLists, setTaskLists] = useState<any[]>(globalChecklists.taskLists);
+  const [saving, setSaving] = useState(false);
   const theme = useTheme();
-  const [taskSearch, setTaskSearch] = React.useState<string>("");
-  const [activeTaskDropdown, setActiveTaskDropdown] = React.useState<
-    number | null
-  >(null);
+  const [taskSearch, setTaskSearch] = useState<string>("");
+  const [activeTaskDropdown, setActiveTaskDropdown] = useState<number | null>(
+    null
+  );
   const allTasks = globalChecklists.tasks;
 
   async function handleSave() {
@@ -100,7 +93,9 @@ export function EditTaskListsScreen() {
                   color={theme.colors.primary}
                 />
               </TouchableOpacity>
-              <ItemLabel fontSize={10} style={{ marginRight: 4 }}>TaskList ID:</ItemLabel>
+              <ItemLabel fontSize={10} style={{ marginRight: 4 }}>
+                TaskList ID:
+              </ItemLabel>
               <ItemLabel fontSize={10}>{tl.id}</ItemLabel>
             </View>
             <ItemBox>
@@ -109,7 +104,7 @@ export function EditTaskListsScreen() {
                 value={tl.name}
                 onChangeText={(v: string) => updateTaskList(i, "name", v)}
               />
-              <ItemLabel>Task IDs</ItemLabel>
+              <ItemLabel>Tasks</ItemLabel>
               <View style={{ position: "relative", marginBottom: 16 }}>
                 <ChipRow>
                   {tl.taskIds.map((id: string) => {
@@ -141,53 +136,25 @@ export function EditTaskListsScreen() {
                     );
                   })}
                 </ChipRow>
-                <Input
-                  value={activeTaskDropdown === i ? taskSearch : ""}
-                  onFocus={() => {
-                    setActiveTaskDropdown(i);
-                    setTaskSearch("");
+                <StyledPicker
+                  value={""}
+                  onValueChange={(taskId: string) => {
+                    if (taskId) {
+                      updateTaskList(
+                        i,
+                        "taskIds",
+                        [...tl.taskIds, taskId].join(",")
+                      );
+                    }
                   }}
-                  onBlur={() =>
-                    setTimeout(() => setActiveTaskDropdown(null), 200)
-                  }
-                  onChangeText={setTaskSearch}
-                  placeholder="Search tasks by description"
-                  theme={theme}
+                  items={allTasks
+                    .filter((t: any) => !tl.taskIds.includes(t.id))
+                    .map((t: { description: string; id: string }) => ({
+                      label: t.description,
+                      value: t.id,
+                    }))}
+                  placeholder="Add task by description..."
                 />
-                {activeTaskDropdown === i && (
-                  <Portal>
-                    <CenteredSuggestionDropdown theme={theme}>
-                      <RNScrollView style={{ maxHeight: 220 }}>
-                        {allTasks
-                          .filter(
-                            (t: any) =>
-                              t.description
-                                .toLowerCase()
-                                .includes(taskSearch.toLowerCase()) &&
-                              !tl.taskIds.includes(t.id)
-                          )
-                          .map((t: any) => (
-                            <SuggestionItem
-                              key={t.id}
-                              theme={theme}
-                              onPress={() => {
-                                updateTaskList(
-                                  i,
-                                  "taskIds",
-                                  [...tl.taskIds, t.id].join(",")
-                                );
-                                setTaskSearch("");
-                              }}
-                            >
-                              <SuggestionText theme={theme}>
-                                {t.description}
-                              </SuggestionText>
-                            </SuggestionItem>
-                          ))}
-                      </RNScrollView>
-                    </CenteredSuggestionDropdown>
-                  </Portal>
-                )}
               </View>
             </ItemBox>
           </Collapsible>

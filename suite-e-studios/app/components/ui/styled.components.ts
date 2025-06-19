@@ -9,7 +9,7 @@ const screenWidth = Dimensions.get("window").width;
 export const Input = styled.TextInput<{ theme: DefaultTheme }>`
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.input};
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
   border: 1px solid #e0e7ef;
   border-radius: 6px;
   padding: 8px;
@@ -62,7 +62,7 @@ export const ActionButtonText = styled.Text<{
 }>`
   font-size: 16px;
   color: ${({ active, theme }: { active?: boolean; theme: DefaultTheme }) =>
-    active ? theme.colors.input : theme.colors.darkText};
+    active ? theme.colors.input : theme.colors.text};
   font-weight: ${({ active }: { active?: boolean }) =>
     active ? "bold" : "normal"};
 `;
@@ -97,7 +97,7 @@ export const Label = styled.Text<{
 }>`
   font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 24}px;
   margin-right: 16px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
 `;
 
 export const ItemLabel = styled.Text<{
@@ -106,6 +106,7 @@ export const ItemLabel = styled.Text<{
 }>`
   font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 20}px;
   font-weight: 500;
+  margin-bottom: 8px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
 `;
 
@@ -201,7 +202,7 @@ export const SectionTitle = styled.Text<{ theme: DefaultTheme }>`
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.primary};
 `;
 
 export const AuthContainer = styled.View<{ theme: DefaultTheme }>`
@@ -220,11 +221,13 @@ export const AuthInput = styled.TextInput<{ theme: DefaultTheme }>`
   padding: 12px;
   border-radius: 8px;
   border-width: 1px;
+  placeholderTextColor: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.colors.mutedText};
   border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.divider};
   font-size: 16px;
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.input};
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
 `;
 
 export const AuthButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
@@ -260,12 +263,12 @@ export const WelcomeText = styled.Text<{ theme: DefaultTheme }>`
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
 `;
 
 export const RoleText = styled.Text<{ theme: DefaultTheme }>`
   font-size: 18px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
   margin-bottom: 24px;
 `;
 
@@ -324,7 +327,7 @@ export const UserIcon = styled.TouchableOpacity<{ theme: DefaultTheme }>`
   margin-right: 16px;
   border-radius: 18px;
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
-    theme.colors.input};
+    theme.colors.mutedText};
   align-items: center;
   justify-content: center;
 `;
@@ -408,7 +411,7 @@ export const SuggestionItem = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 `;
 
 export const SuggestionText = styled.Text<{ theme: DefaultTheme }>`
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
   font-size: 16px;
 `;
 

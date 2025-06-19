@@ -11,6 +11,7 @@ declare module "styled-components" {
       accent: string;
       highlight: string;
       lightText: string;
+      text: string;
       darkText: string;
       mutedText: string;
       input: string;

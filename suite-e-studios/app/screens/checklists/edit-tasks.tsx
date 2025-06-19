@@ -1,29 +1,74 @@
 /** @format */
 
 import * as Clipboard from "expo-clipboard";
-import * as React from "react";
 
-import { Alert, Button, ScrollView, View } from "react-native";
 import {
+  ActionButton,
+  ActionButtonText,
   Container,
+  Divider,
   Input,
   ItemBox,
   ItemLabel,
   Label,
 } from "@/app/components/ui/styled.components";
+import { Alert, Button, ScrollView, View } from "react-native";
+import React, { useEffect, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Collapsible } from "../../components/ui/Collapsible";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
+import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "styled-components/native";
 
 const globalChecklists = require("../../../global.checklists.json");
+const CATEGORY_KEY = "task-categories";
+const ROLE_KEY = "task-roles";
+const DEFAULT_CATEGORIES = ["pre-event", "during-event", "post-event"];
+const DEFAULT_ROLES = [
+  "sound-engineer",
+  "event-producer",
+  "door-person",
+  "bar-person",
+];
+
+// Simple unique ID generator for tasks
+function generateTaskId() {
+  return (
+    "T-" +
+    Math.random().toString(36).substr(2, 8) +
+    "-" +
+    Math.random().toString(36).substr(2, 4) +
+    "-" +
+    Math.random().toString(36).substr(2, 4)
+  );
+}
 
 export function EditTasksScreen() {
-  const [tasks, setTasks] = React.useState<any[]>(globalChecklists.tasks);
-  const [saving, setSaving] = React.useState(false);
+  const [tasks, setTasks] = useState<any[]>(globalChecklists.tasks);
+  const [saving, setSaving] = useState(false);
+  const [adding, setAdding] = useState(false);
   const theme = useTheme();
+  const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
+  const [roles, setRoles] = useState<string[]>(DEFAULT_ROLES);
+
+  useEffect(() => {
+    (async () => {
+      const cat = await AsyncStorage.getItem(CATEGORY_KEY);
+      if (cat) {
+        try {
+          setCategories(JSON.parse(cat));
+        } catch {}
+      }
+      const role = await AsyncStorage.getItem(ROLE_KEY);
+      if (role) {
+        try {
+          setRoles(JSON.parse(role));
+        } catch {}
+      }
+    })();
+  }, []);
 
   async function handleSave() {
     setSaving(true);
@@ -49,12 +94,24 @@ export function EditTasksScreen() {
     setTasks(updated);
   }
 
+  function handleAddTask() {
+    setAdding(true);
+    const newTask = {
+      id: generateTaskId(),
+      description: "",
+      category: "",
+      role: "",
+    };
+    setTasks((prev: any[]) => [...prev, newTask]);
+    setAdding(false);
+  }
+
   return (
     <ScrollView>
       <Label fontSize={32}>Tasks</Label>
       <Container>
         {tasks.map((t: any, i: number) => (
-          <Collapsible key={t.id} title={t.description}>
+          <Collapsible key={t.id} title={t.description || "(New Task)"}>
             <View
               style={{
                 flexDirection: "row",
@@ -75,7 +132,9 @@ export function EditTasksScreen() {
                   color={theme.colors.primary}
                 />
               </TouchableOpacity>
-              <ItemLabel fontSize={10} style={{ marginRight: 4 }}>Task ID:</ItemLabel>
+              <ItemLabel fontSize={10} style={{ marginRight: 4 }}>
+                Task ID:
+              </ItemLabel>
               <ItemLabel fontSize={10}>{t.id}</ItemLabel>
             </View>
             <ItemBox>
@@ -85,18 +144,36 @@ export function EditTasksScreen() {
                 onChangeText={(v: string) => updateTask(i, "description", v)}
               />
               <ItemLabel>Category</ItemLabel>
-              <Input
+              <StyledPicker
                 value={t.category}
-                onChangeText={(v: string) => updateTask(i, "category", v)}
+                onValueChange={(v: string) => updateTask(i, "category", v)}
+                items={categories.map((cat) => ({ label: cat, value: cat }))}
+                placeholder="Select category..."
               />
               <ItemLabel>Role</ItemLabel>
-              <Input
+              <StyledPicker
                 value={t.role}
-                onChangeText={(v: string) => updateTask(i, "role", v)}
+                onValueChange={(v: string) => updateTask(i, "role", v)}
+                items={roles.map((role) => ({ label: role, value: role }))}
+                placeholder="Select role..."
               />
             </ItemBox>
           </Collapsible>
         ))}
+        <View style={{ marginTop: 24 }} />
+        <Button
+          title={saving ? "Saving..." : "+ ADD TASK"}
+          onPress={handleAddTask}
+          disabled={saving}
+        />
+        <Divider
+          style={{
+            marginVertical: 16,
+            height: 2,
+            backgroundColor: theme.colors.divider,
+            width: "100%",
+          }}
+        />
         <Button
           title={saving ? "Saving..." : "Save All"}
           onPress={handleSave}

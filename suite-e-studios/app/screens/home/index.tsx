@@ -157,8 +157,11 @@ export function HomeScreen({ navigation }: Props) {
         <ActionButton
           accessibilityRole="button"
           activeOpacity={1.4}
+          onPress={() =>
+            navigation.navigate("Settings")
+          }
           onPressIn={() => {
-            setPressedButton("left");
+            setPressedButton("settings");
             fadeIn(leftAnim);
           }}
           onPressOut={() => {
@@ -174,7 +177,7 @@ export function HomeScreen({ navigation }: Props) {
               opacity: leftAnim,
             }}
           />
-          <ActionButtonText>???</ActionButtonText>
+          <ActionButtonText>Settings</ActionButtonText>
         </ActionButton>
         <Divider />
         <ActionButton
@@ -248,7 +251,7 @@ export function HomeScreen({ navigation }: Props) {
             navigation.navigate("Checklists", { initialTab: "tasks" })
           }
           onPressIn={() => {
-            setPressedButton("right");
+            setPressedButton("tasks");
             fadeIn(rightAnim);
           }}
           onPressOut={() => {

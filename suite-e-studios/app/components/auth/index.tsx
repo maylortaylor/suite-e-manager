@@ -61,7 +61,6 @@ export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
         accessibilityLabel="Email"
         returnKeyType="next"
         editable={!isLoading}
-        placeholderTextColor="#444"
       />
       <AuthInput
         placeholder="Password"

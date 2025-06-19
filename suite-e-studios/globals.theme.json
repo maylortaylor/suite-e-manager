@@ -6,20 +6,22 @@
     "accent": "#966c96",
     "highlight": "#f6eeba",
     "lightText": "#F2F9FF",
+    "text": "#373A40",
     "darkText": "#000000",
-    "mutedText": "#5C6270",
+    "mutedText": "#9AA6B2",
     "input": "#FBFBFB",
-    "divider": "#5C6270"
+    "divider": "#FECDA6"
   },
   "dark": {
     "background": "#4c4242",
     "primary": "#CC7000",
     "secondary": "#328dcb",
     "accent": "#966c96",
-    "highlight": "#f6eeba",
+    "highlight": "#F3C623",
     "lightText": "#F2F9FF",
-    "darkText": "#E5E3DC",
-    "mutedText": "#b0b0b0",
+    "text": "#F2F9FF",
+    "darkText": "#373A40",
+    "mutedText": "#B9B28A",
     "input": "#2c2c2c",
     "divider": "#888"
   }

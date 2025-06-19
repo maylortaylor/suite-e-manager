@@ -14,6 +14,7 @@ The user wants to deploy the web version of the Suite E Studios app to a Google 
 - Configuring Firebase Hosting to serve the correct files and handle client-side routing (SPA fallback).
 - Managing environment variables or secrets if needed for web.
 - Ensuring the build process is reproducible and documented for future updates.
+- **Task Management UX:** Allowing users to add new tasks easily, with persistence via AsyncStorage.
 
 # High-level Task Breakdown
 1. **Project Setup**
@@ -36,19 +37,27 @@ The user wants to deploy the web version of the Suite E Studios app to a Google 
 7. **Checklist Management**
    - [ ] Scaffold checklist components and context
    - [ ] Support global/event-specific checklists and collections
+   - [ ] **Add Task Button & AsyncStorage**
+     - Add an "ADD TASK" button at the bottom of the Edit Tasks screen, styled consistently with the app.
+     - When pressed, append a new task (with unique ID, empty fields) to the list.
+     - Ensure new tasks are editable and saved with "Save All" (persisted to AsyncStorage).
+     - Success: User can add, edit, and save new tasks; tasks persist after reload.
 8. **Google Services Integration (Scaffolding)**
    - [ ] Prepare API integration points for Google Calendar and Forms
    - [ ] Add placeholder for viewing Google Form results
 9. **Testing & Error Handling**
    - [ ] Set up Jest/React Native Testing Library
    - [ ] Implement error boundaries and logging (expo-error-reporter/Sentry)
-10. **Web Build**
+10. **Web Build & Firebase Hosting**
     - [x] Prepare the Expo/React Native app for web build
     - [x] Set up a new Firebase project (if not already done)
-    - [ ] Initialize Firebase Hosting in the project directory
-    - [ ] Configure Firebase Hosting to serve the Expo web build
-    - [ ] Deploy to Firebase Hosting
-    - [ ] Document the deployment process for future updates
+    - [x] Build the web app for static export (`npm run build`)
+    - [x] Ensure `firebase.json` is configured to serve the `dist` directory and SPA fallback
+    - [x] Add/verify npm scripts for build and deploy (`web:build`, `firebase:deploy`, `deploy`)
+    - [ ] Initialize Firebase Hosting in the project directory (if not already done)
+    - [ ] Deploy to Firebase Hosting (`npm run deploy`)
+    - [ ] Document the deployment process for future updates (in README)
+    - Success: Visiting the Firebase Hosting URL loads the latest web build and supports client-side routing.
 
 # Project Status Board
 - [ ] Implement Google OAuth authentication
@@ -64,23 +73,38 @@ The user wants to deploy the web version of the Suite E Studios app to a Google 
 - [x] Set up settings page with dark mode and UI size toggle
 - [ ] Scaffold checklist components and context
 - [ ] Support global/event-specific checklists and collections
+- [ ] Add Task Button & AsyncStorage (Edit Tasks screen)
 - [ ] Prepare Google Calendar and Google Forms integration scaffolding
 - [x] Prepare Expo app for web build
 - [x] Set up Firebase project
-- [ ] Initialize Firebase Hosting
-- [ ] Configure Hosting for Expo web build
+- [x] Build web app for static export
+- [x] Configure Hosting for Expo web build (firebase.json, SPA fallback)
+- [x] Add/verify npm scripts for build and deploy
+- [ ] Initialize Firebase Hosting (if not already done)
 - [ ] Deploy to Firebase Hosting
 - [ ] Document deployment process
+- [x] Add editable categories/roles to Settings page (complete)
+- [x] Persist categories/roles to AsyncStorage (complete)
+- [ ] Use categories/roles as dropdowns in task builder/new task form (in progress)
+- [ ] Use roles as dropdown in checklist form
 
 # Executor's Feedback or Assistance Requests
+- Editable categories and roles UI in Settings is complete and persists to AsyncStorage.
+- Next: Update the task form builder to load and use these lists as dropdowns for category and role fields, reading from storage on mount.
+- Starting implementation of editable categories and roles in the Settings page (step 1 of the new feature plan).
+- Approach: Add two sections to the Settings page for categories and roles, each with a list, input, add button, and remove option. Add a Save Settings button at the bottom. Will use AsyncStorage for persistence and provide sensible defaults if no data is present.
+- UI/UX: Will ensure the UI is simple and mobile-friendly, with validation to prevent empty or duplicate entries. Will use existing styled components for consistency.
 - Expo web build completed successfully using `npx expo export --platform web`.
 - Output directory: `dist` (contains static web build for deployment).
 - Firebase project and hosting are already set up.
 - Next: Initialize Firebase Hosting in this directory (if not already done) and configure it for the Expo web build.
+- Add Task Button: Awaiting implementation and test of add/edit/save new tasks with AsyncStorage.
 
 # Lessons
 - 'expo-error-reporter' is not available on npm; use Sentry or other error reporting tools instead.
 - Use --legacy-peer-deps when encountering peer dependency conflicts with React 19 and older libraries.
+- For Firebase Hosting, ensure `firebase.json` has the correct public directory ("dist") and SPA fallback (rewrites to /index.html).
+- Use `npm run build` then `npm run deploy` for a clean deploy cycle.
 
 ---
 
@@ -269,4 +293,54 @@ export function SettingsScreen() {
     </View>
   );
 }
-``` 
+```
+
+# Feature: Editable Categories & Roles
+
+## Background & Motivation
+- Users need to manage the lists of "categories" and "roles" used for tasks and checklists.
+- These lists should be editable from the Settings page and persist across app restarts.
+- Task and checklist forms should use these lists as dropdowns for consistent data entry.
+
+## Key Challenges & Analysis
+- **Persistence:** Use AsyncStorage (via `getSetting`/`saveSetting`) for categories and roles.
+- **UI/UX:** Provide a simple, user-friendly way to view, add, and remove categories/roles in Settings.
+- **Integration:** Update all forms (task builder, new task, checklist form) to use these lists as dropdowns.
+- **Default Values:** Provide sensible defaults if no categories/roles are saved yet.
+- **Validation:** Prevent duplicates and empty entries.
+
+## High-level Task Breakdown (Categories & Roles)
+1. **Settings Page: Category & Role Management**
+   - [ ] Add two sections: "Task Categories" and "Task Roles".
+   - [ ] Display current lists (from AsyncStorage or defaults).
+   - [ ] Allow adding new entries (with input + add button).
+   - [ ] Allow removing entries (with a delete button/icon).
+   - [ ] Add a "Save Settings" button at the bottom to persist changes.
+   - [ ] Success: User can view, add, and remove categories/roles, and save them to storage.
+2. **Storage Integration**
+   - [ ] Use AsyncStorage keys like `task-categories` and `task-roles`.
+   - [ ] On app start, load these lists (or use defaults if not set).
+   - [ ] On save, persist the updated lists.
+3. **Task Builder & New Task Form**
+   - [ ] Replace free-text "category" and "role" fields with dropdowns/selects.
+   - [ ] Dropdown options come from the saved lists.
+   - [ ] Allow "Add New" inline if possible (optional, stretch goal).
+   - [ ] Success: User can only select from the saved categories/roles when creating/editing a task.
+4. **Checklist Form**
+   - [ ] Use the saved roles list for any role selection dropdowns.
+   - [ ] Success: Checklist role selection is consistent with the settings.
+5. **Testing & Validation**
+   - [ ] Test adding/removing/saving categories and roles.
+   - [ ] Test that forms update dynamically when lists change.
+   - [ ] Ensure no duplicates or empty entries are allowed.
+
+## Project Status Board (Additions)
+- [ ] Add editable categories/roles to Settings page
+- [ ] Persist categories/roles to AsyncStorage
+- [ ] Use categories/roles as dropdowns in task builder/new task form
+- [ ] Use roles as dropdown in checklist form
+
+## Success Criteria
+- Settings page allows full management of categories and roles.
+- All relevant forms use these lists as dropdowns.
+- Changes persist and are reflected throughout the app. 

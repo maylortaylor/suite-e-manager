@@ -1,10 +1,7 @@
 /** @format */
 
-import * as React from "react";
-
 import { Alert, Button, ScrollView } from "react-native";
 import {
-  CenteredSuggestionDropdown,
   Chip,
   ChipLabel,
   ChipRemove,
@@ -14,37 +11,52 @@ import {
   ItemBox,
   ItemLabel,
   Label,
-  SuggestionItem,
-  SuggestionText,
 } from "@/app/components/ui/styled.components";
+import React, { useEffect, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Collapsible } from "../../components/ui/Collapsible";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
-import { Portal } from "@gorhom/portal";
-import { ScrollView as RNScrollView } from "react-native";
+import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { View } from "react-native";
 import { useTheme } from "styled-components/native";
 
 const globalChecklists = require("../../../global.checklists.json");
 
 export function EditChecklistsScreen() {
-  const [checklists, setChecklists] = React.useState<any[]>(
+  const [checklists, setChecklists] = useState<any[]>(
     globalChecklists.checklists
   );
-  const [saving, setSaving] = React.useState(false);
+  const [saving, setSaving] = useState(false);
   const theme = useTheme();
   // For autocomplete state
-  const [taskListSearch, setTaskListSearch] = React.useState<string>("");
-  const [taskSearch, setTaskSearch] = React.useState<string>("");
-  const [activeTaskListDropdown, setActiveTaskListDropdown] = React.useState<
+  const [taskListSearch, setTaskListSearch] = useState<string>("");
+  const [taskSearch, setTaskSearch] = useState<string>("");
+  const [activeTaskListDropdown, setActiveTaskListDropdown] = useState<
     number | null
   >(null);
-  const [activeTaskDropdown, setActiveTaskDropdown] = React.useState<
-    number | null
-  >(null);
+  const [activeTaskDropdown, setActiveTaskDropdown] = useState<number | null>(
+    null
+  );
   const allTaskLists = globalChecklists.taskLists;
   const allTasks = globalChecklists.tasks;
+  const [roles, setRoles] = useState<string[]>([
+    "sound-engineer",
+    "event-producer",
+    "door-person",
+    "bar-person",
+  ]);
+
+  useEffect(() => {
+    (async () => {
+      const role = await AsyncStorage.getItem("task-roles");
+      if (role) {
+        try {
+          setRoles(JSON.parse(role));
+        } catch {}
+      }
+    })();
+  }, []);
 
   async function handleSave() {
     setSaving(true);
@@ -94,11 +106,16 @@ export function EditChecklistsScreen() {
                 onChangeText={(v: string) => updateChecklist(i, "name", v)}
               />
               <ItemLabel>Role</ItemLabel>
-              <Input
+              <StyledPicker
                 value={c.role}
-                onChangeText={(v: string) => updateChecklist(i, "role", v)}
+                onValueChange={(v: string) => updateChecklist(i, "role", v)}
+                items={roles.map((role: string) => ({
+                  label: role,
+                  value: role,
+                }))}
+                placeholder="Select role..."
               />
-              <ItemLabel>Task List IDs</ItemLabel>
+              <ItemLabel>Task Lists</ItemLabel>
               <View style={{ position: "relative", marginBottom: 16 }}>
                 <ChipRow>
                   {(c.taskListIds || []).map((id: string) => {
@@ -128,54 +145,23 @@ export function EditChecklistsScreen() {
                     );
                   })}
                 </ChipRow>
-                <Input
-                  value={activeTaskListDropdown === i ? taskListSearch : ""}
-                  onFocus={() => {
-                    setActiveTaskListDropdown(i);
-                    setTaskListSearch("");
+                <StyledPicker
+                  value={""}
+                  onValueChange={(taskListId: string) => {
+                    if (taskListId) {
+                      updateChecklist(i, "taskListIds", [
+                        ...(c.taskListIds || []),
+                        taskListId,
+                      ]);
+                    }
                   }}
-                  onBlur={() =>
-                    setTimeout(() => setActiveTaskListDropdown(null), 200)
-                  }
-                  onChangeText={setTaskListSearch}
-                  placeholder="Search task lists by name"
-                  theme={theme}
+                  items={allTaskLists
+                    .filter((tl: any) => !(c.taskListIds || []).includes(tl.id))
+                    .map((tl: any) => ({ label: tl.name, value: tl.id }))}
+                  placeholder="Add task list by name..."
                 />
-                {activeTaskListDropdown === i && (
-                  <Portal>
-                    <CenteredSuggestionDropdown theme={theme}>
-                      <RNScrollView style={{ maxHeight: 220 }}>
-                        {allTaskLists
-                          .filter(
-                            (tl: any) =>
-                              tl.name
-                                .toLowerCase()
-                                .includes(taskListSearch.toLowerCase()) &&
-                              !(c.taskListIds || []).includes(tl.id)
-                          )
-                          .map((tl: any) => (
-                            <SuggestionItem
-                              key={tl.id}
-                              theme={theme}
-                              onPress={() => {
-                                updateChecklist(i, "taskListIds", [
-                                  ...(c.taskListIds || []),
-                                  tl.id,
-                                ]);
-                                setTaskListSearch("");
-                              }}
-                            >
-                              <SuggestionText theme={theme}>
-                                {tl.name}
-                              </SuggestionText>
-                            </SuggestionItem>
-                          ))}
-                      </RNScrollView>
-                    </CenteredSuggestionDropdown>
-                  </Portal>
-                )}
               </View>
-              <ItemLabel>Task IDs</ItemLabel>
+              <ItemLabel>Tasks</ItemLabel>
               <View style={{ position: "relative", marginBottom: 16 }}>
                 <ChipRow>
                   {(c.taskIds || []).map((id: string) => {
@@ -207,52 +193,21 @@ export function EditChecklistsScreen() {
                     );
                   })}
                 </ChipRow>
-                <Input
-                  value={activeTaskDropdown === i ? taskSearch : ""}
-                  onFocus={() => {
-                    setActiveTaskDropdown(i);
-                    setTaskSearch("");
+                <StyledPicker
+                  value={""}
+                  onValueChange={(taskId: string) => {
+                    if (taskId) {
+                      updateChecklist(i, "taskIds", [
+                        ...(c.taskIds || []),
+                        taskId,
+                      ]);
+                    }
                   }}
-                  onBlur={() =>
-                    setTimeout(() => setActiveTaskDropdown(null), 200)
-                  }
-                  onChangeText={setTaskSearch}
-                  placeholder="Search tasks by description"
-                  theme={theme}
+                  items={allTasks
+                    .filter((t: any) => !(c.taskIds || []).includes(t.id))
+                    .map((t: any) => ({ label: t.description, value: t.id }))}
+                  placeholder="Add task by description..."
                 />
-                {activeTaskDropdown === i && (
-                  <Portal>
-                    <CenteredSuggestionDropdown theme={theme}>
-                      <RNScrollView style={{ maxHeight: 220 }}>
-                        {allTasks
-                          .filter(
-                            (t: any) =>
-                              t.description
-                                .toLowerCase()
-                                .includes(taskSearch.toLowerCase()) &&
-                              !(c.taskIds || []).includes(t.id)
-                          )
-                          .map((t: any) => (
-                            <SuggestionItem
-                              key={t.id}
-                              theme={theme}
-                              onPress={() => {
-                                updateChecklist(i, "taskIds", [
-                                  ...(c.taskIds || []),
-                                  t.id,
-                                ]);
-                                setTaskSearch("");
-                              }}
-                            >
-                              <SuggestionText theme={theme}>
-                                {t.description}
-                              </SuggestionText>
-                            </SuggestionItem>
-                          ))}
-                      </RNScrollView>
-                    </CenteredSuggestionDropdown>
-                  </Portal>
-                )}
               </View>
             </ItemBox>
           </Collapsible>
