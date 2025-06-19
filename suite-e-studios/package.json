@@ -9,7 +9,8 @@
     "ios": "expo start --ios",
     "rebuild": "rm -rf node_modules && rm -rf package-lock.json && npm cache clean --force && npm install --legacy-peer-deps",
     "web": "expo start --web",
-    "web:build": "expo export:web",
+    "web:build": "EXPO_WEB_OUTPUT=dist expo export --platform web",
+    "web:build:static": "EXPO_WEB_OUTPUT=static expo export --platform web",
     "expo:lint": "expo lint",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "test": "jest",
@@ -22,8 +23,8 @@
     "firebase:deploy": "firebase deploy --only hosting",
     "docker:build": "docker build -t suite-e-studios .",
     "docker:run": "docker run -p 3000:3000 suite-e-studios",
-    "deploy": "npm run build && npm run firebase:deploy",
-    "ci": "npm run lint && npm run typecheck && npm test && npm run build"
+    "deploy": "npm run web:build && npm run firebase:deploy",
+    "ci": "npm run lint && npm run typecheck && npm test && npm run web:build"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
