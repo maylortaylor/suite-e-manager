@@ -2,11 +2,17 @@
 
 import * as React from "react";
 
+import { Image, TouchableOpacity } from "react-native";
+import {
+  NativeStackNavigationProp,
+  createNativeStackNavigator,
+} from "@react-navigation/native-stack";
+
 import { ChecklistsScreen } from "../screens/checklists";
 import { HomeScreen } from "../screens/home";
 import { SettingsScreen } from "../screens/settings";
 import { UserMenu } from "../components/ui/UserMenu";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../context/user-context";
 
 // import NotFoundScreen from "../+not-found";
@@ -29,14 +35,24 @@ function withUserMenu(Component: React.ComponentType<any>) {
 
 export function MainStack() {
   const { state } = useUser();
+
   return (
     <Stack.Navigator
       initialRouteName="Home"
-      screenOptions={{
+      screenOptions={({ navigation }) => ({
         headerShown: true,
         headerRight: () => (state.user ? <UserMenu /> : null),
-        headerTintColor: "#FFFFFF",
-      }}
+        // headerTintColor: "#FFFFFF",
+        headerLeft: () => (
+          <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+            <Image
+              source={require("../../assets/images/Suite_E_Logo_small.png")}
+              style={{ width: 40, height: 40, marginLeft: 10 }}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        ),
+      })}
     >
       <Stack.Screen
         name="Home"

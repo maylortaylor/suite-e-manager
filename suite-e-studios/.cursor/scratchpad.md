@@ -345,6 +345,33 @@ export function SettingsScreen() {
 - All relevant forms use these lists as dropdowns.
 - Changes persist and are reflected throughout the app.
 
+# Feature: Top Navigation Bar Updates
+
+## Background & Motivation
+- The user wants to improve the branding and navigation of the app.
+- This includes setting a custom favicon for the web app, adding the company logo to the header for branding and easy navigation to the home screen.
+- A previously reported issue with a `back-icon.png` was investigated. The file does not exist in the project and is not referenced, so no action is needed on that front. The back arrow is currently a white chevron, which is the desired behavior.
+
+## Key Challenges & Analysis
+- **Favicon:** Ensuring the favicon is correctly configured in `app.json` for the Expo web build.
+- **Header Logo:** Correctly implementing a custom `headerLeft` component in React Navigation. This component needs to handle navigation and display the logo image correctly, replacing the default back button behavior with a consistent "navigate to home" action.
+
+## High-level Task Breakdown (Navigation Updates)
+1. **Set Favicon for Web**
+   - [ ] Update `app.json` to point the `web.favicon` property to `./assets/images/Suite_E_Logo_small.png`. Note: The path for `app.json` assets is usually relative to the project root, and `images` seems to be inside `assets`. I'll need to verify this structure.
+   - [ ] Success: After rebuilding for web, the new favicon is visible in the browser tab.
+2. **Add Logo to Header Left**
+   - [ ] Modify `app/navigation/main-stack.tsx`.
+   - [ ] In the `Stack.Navigator`'s `screenOptions`, add a `headerLeft` property.
+   - [ ] The property will be a function that returns a `TouchableOpacity` component wrapping an `Image` component.
+   - [ ] The `Image` source will be `require('../../assets/images/Suite_E_Logo_small.png')`. The path needs to be relative from `main-stack.tsx`.
+   - [ ] The `onPress` handler of the `TouchableOpacity` will navigate the user to the 'Home' screen.
+   - [ ] Success: The logo appears on the top left of the navigation bar on all screens, and clicking it navigates to the Home screen.
+
+## Project Status Board (Additions)
+- [ ] Configure favicon for web build
+- [ ] Add clickable logo to header that navigates home
+
 # Feature: UI Size Toggle Implementation
 
 ## Background & Motivation
