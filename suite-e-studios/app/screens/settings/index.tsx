@@ -1,8 +1,14 @@
 /** @format */
 
 import {
-  ActionButton,
-  ActionButtonText,
+  Alert,
+  Dimensions,
+  FlatList,
+  ScrollView,
+  Switch,
+  View,
+} from "react-native";
+import {
   Container,
   Input,
   ItemBox,
@@ -10,18 +16,11 @@ import {
   Row,
   SectionTitle,
 } from "@/app/components/ui/styled.components";
-import {
-  Alert,
-  Dimensions,
-  FlatList,
-  ScrollView,
-  Switch,
-  TouchableOpacity,
-  View,
-} from "react-native";
 import React, { useEffect, useState } from "react";
 import { getSetting, saveSetting } from "../../../utils/storage";
 
+import { Button } from "@/app/components/ui/Button";
+import { Divider } from "@/app/components/ui/Divider";
 import { UserMenu } from "@/app/components/ui/UserMenu";
 import { useTheme } from "styled-components/native";
 import { useThemeMode } from "../../context/theme-context";
@@ -144,14 +143,14 @@ export function SettingsScreen() {
             theme={theme}
             style={{ flex: 1 }}
           />
-          <ActionButton
+          <Button
+            variant="accent"
+            size="small"
             onPress={addCategory}
-            theme={theme}
-            backgroundColor={theme.colors.accent}
             style={{ marginLeft: 8 }}
           >
-            <ActionButtonText theme={theme}>Add</ActionButtonText>
-          </ActionButton>
+            Add
+          </Button>
         </Row>
         <ItemBox theme={theme} style={{ maxHeight: maxListHeight }}>
           <FlatList
@@ -162,14 +161,13 @@ export function SettingsScreen() {
                 <Label style={{ flex: 1 }} fontSize={24}>
                   {item}
                 </Label>
-                <TouchableOpacity onPress={() => removeCategory(item)}>
-                  <ActionButtonText
-                    theme={theme}
-                    style={{ color: theme.colors.highlight }}
-                  >
-                    Remove
-                  </ActionButtonText>
-                </TouchableOpacity>
+                <Button
+                  variant="highlight"
+                  size="small"
+                  onPress={() => removeCategory(item)}
+                >
+                  Remove
+                </Button>
               </Row>
             )}
             scrollEnabled={true}
@@ -186,13 +184,14 @@ export function SettingsScreen() {
             theme={theme}
             style={{ flex: 1 }}
           />
-          <ActionButton
+          <Button
+            variant="accent"
+            size="small"
             onPress={addRole}
-            theme={theme}
             style={{ marginLeft: 8 }}
           >
-            <ActionButtonText theme={theme}>Add</ActionButtonText>
-          </ActionButton>
+            Add
+          </Button>
         </Row>
         <ItemBox theme={theme} style={{ maxHeight: maxListHeight }}>
           <FlatList
@@ -203,14 +202,13 @@ export function SettingsScreen() {
                 <Label style={{ flex: 1 }} fontSize={24}>
                   {item}
                 </Label>
-                <TouchableOpacity onPress={() => removeRole(item)}>
-                  <ActionButtonText
-                    theme={theme}
-                    style={{ color: theme.colors.highlight }}
-                  >
-                    Remove
-                  </ActionButtonText>
-                </TouchableOpacity>
+                <Button
+                  variant="highlight"
+                  size="small"
+                  onPress={() => removeRole(item)}
+                >
+                  Remove
+                </Button>
               </Row>
             )}
             scrollEnabled={true}
@@ -218,21 +216,23 @@ export function SettingsScreen() {
         </ItemBox>
 
         {/* Save Settings Button */}
-        <ActionButton
+        <Button
+          variant="primary"
+          size="large"
           onPress={handleSaveSettings}
-          theme={theme}
-          style={{
-            marginTop: 32,
-            width: "100%",
-            height: 48,
-            alignSelf: "center",
-          }}
           disabled={saving}
+          fullWidth
+          style={{ marginTop: 32 }}
         >
-          <ActionButtonText theme={theme} style={{ fontWeight: "bold" }}>
-            {saving ? "Saving..." : "Save Settings"}
-          </ActionButtonText>
-        </ActionButton>
+          {saving ? "Saving..." : "Save Settings"}
+        </Button>
+        <Divider
+          orientation="horizontal"
+          thickness={1}
+          length={8}
+          marginHorizontal={8}
+          color={theme.colors.divider}
+        />
       </Container>
     </ScrollView>
   );

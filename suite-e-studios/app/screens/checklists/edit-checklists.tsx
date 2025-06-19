@@ -16,7 +16,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Collapsible } from "../../components/ui/Collapsible";
-import { Divider } from "@/app/components/ui/styled.components";
+import { Divider } from "@/app/components/ui/Divider";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { View } from "react-native";
@@ -231,17 +231,26 @@ export function EditChecklistsScreen({
           disabled={saving}
         />
         <Divider
-          style={{
-            marginVertical: 16,
-            height: 2,
-            backgroundColor: theme.colors.divider,
-            width: "100%",
-          }}
+          orientation="horizontal"
+          thickness={1}
+          length={8}
+          marginVertical={40}
+          marginHorizontal={40}
+          color={theme.colors.divider}
         />
         <Button
           title={saving ? "Saving..." : "Save All"}
           onPress={handleSave}
           disabled={saving}
+        />
+
+<Divider
+          orientation="horizontal"
+          thickness={1}
+          length={8}
+          marginVertical={40}
+          marginHorizontal={40}
+          color={theme.colors.divider}
         />
       </Container>
     </ScrollView>

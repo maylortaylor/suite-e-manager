@@ -7,7 +7,6 @@ import {
   ActionButtonText,
   BottomBar,
   DashboardBox,
-  Divider,
   HomeContainer,
   RoleText,
   WelcomeText,
@@ -20,6 +19,7 @@ import {
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ChecklistList } from "../../components/checklist";
+import { Divider } from "@/app/components/ui/Divider";
 import { LoginForm } from "../../components/auth";
 import type { MainStackParamList } from "../../navigation/main-stack";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -258,6 +258,15 @@ export function HomeScreen({ navigation }: Props) {
           tasks={randomChecklist?.tasks || []}
         />
       </ScrollView>
+                <Divider
+          orientation="horizontal"
+          thickness={1}
+          length={8}
+          marginVertical={40}
+          marginHorizontal={40}
+          color={theme.colors.divider}
+        />
+        
       <BottomBar>
         <ActionButton
           accessibilityRole="button"
@@ -282,7 +291,13 @@ export function HomeScreen({ navigation }: Props) {
           />
           <ActionButtonText>Settings</ActionButtonText>
         </ActionButton>
-        <Divider />
+        <Divider
+          orientation="vertical"
+          thickness={1}
+          length={8}
+          marginHorizontal={8}
+          color={theme.colors.divider}
+        />
         <ActionButton
           accessibilityRole="button"
           activeOpacity={1.4}
@@ -306,7 +321,13 @@ export function HomeScreen({ navigation }: Props) {
           />
           <ActionButtonText>Change Role</ActionButtonText>
         </ActionButton>
-        <Divider />
+        <Divider
+          orientation="vertical"
+          thickness={1}
+          length={8}
+          marginHorizontal={8}
+          color={theme.colors.divider}
+        />
         <ActionButton
           accessibilityRole="button"
           activeOpacity={1.4}

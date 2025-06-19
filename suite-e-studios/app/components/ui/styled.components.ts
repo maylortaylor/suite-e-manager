@@ -91,13 +91,6 @@ export const ActionButtonText = styled.Text<{
     active ? "bold" : "normal"};
 `;
 
-export const Divider = styled.View`
-  width: 2px;
-  height: 48px;
-  background-color: ${({ theme }: { theme: DefaultTheme }) =>
-    theme.colors.divider};
-`;
-
 export const Container = styled.View<{ theme: DefaultTheme }>`
   flex: 1;
   padding: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.md}px;
@@ -128,10 +121,7 @@ export const Label = styled.Text<{
     fontSize?: number;
     theme: DefaultTheme;
   }) =>
-    getScaledFontSize(
-      fontSize || theme.global.fontSize["xl"],
-      theme.uiSize
-    )}px;
+    getScaledFontSize(fontSize || theme.global.fontSize["xl"], theme.uiSize)}px;
   margin-right: ${({ theme }: { theme: DefaultTheme }) =>
     theme.global.spacing.md}px;
   color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
@@ -396,6 +386,7 @@ export const UserIcon = styled.TouchableOpacity<{ theme: DefaultTheme }>`
 
 export const UserIconText = styled.Text`
   font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 22}px;
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
 `;
 
 export const MenuModal = styled.Modal``;
