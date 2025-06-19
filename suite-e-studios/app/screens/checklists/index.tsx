@@ -17,13 +17,17 @@ import { EditTaskListsScreen } from "./edit-task-lists";
 import { EditTasksScreen } from "./edit-tasks";
 import { UserMenu } from "@/app/components/ui/UserMenu";
 import { View } from "react-native";
+import { useRoute } from "@react-navigation/native";
 
 const globalChecklists = require("../../../global.checklists.json");
 
 export function ChecklistsScreen() {
+  const route = useRoute();
+  const initialTab =
+    (route.params && (route.params as any).initialTab) || "checklists";
   const [activeTab, setActiveTab] = React.useState<
     "checklists" | "tasklists" | "tasks"
-  >("checklists");
+  >(initialTab);
   const [tasks, setTasks] = React.useState<any[]>(globalChecklists.tasks);
   const [taskLists, setTaskLists] = React.useState<any[]>(
     globalChecklists.taskLists
@@ -88,29 +92,33 @@ export function ChecklistsScreen() {
 
       <BottomBar>
         <ActionButton
-          onPress={() => setActiveTab("checklists")}
-          active={activeTab === "checklists"}
+          onPress={() => setActiveTab("tasks")}
+          active={activeTab === "tasks"}
         >
-          <ActionButtonText active={activeTab === "checklists"}>
-            Checklists
+          <ActionButtonText active={activeTab === "tasks"}>
+            1. Tasks
           </ActionButtonText>
         </ActionButton>
+
         <Divider />
+
         <ActionButton
           onPress={() => setActiveTab("tasklists")}
           active={activeTab === "tasklists"}
         >
           <ActionButtonText active={activeTab === "tasklists"}>
-            Task Lists
+            2.Task Lists
           </ActionButtonText>
         </ActionButton>
+
         <Divider />
+
         <ActionButton
-          onPress={() => setActiveTab("tasks")}
-          active={activeTab === "tasks"}
+          onPress={() => setActiveTab("checklists")}
+          active={activeTab === "checklists"}
         >
-          <ActionButtonText active={activeTab === "tasks"}>
-            Tasks
+          <ActionButtonText active={activeTab === "checklists"}>
+            3. Checklists
           </ActionButtonText>
         </ActionButton>
       </BottomBar>

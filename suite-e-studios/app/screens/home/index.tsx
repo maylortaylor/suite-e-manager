@@ -174,7 +174,7 @@ export function HomeScreen({ navigation }: Props) {
               opacity: leftAnim,
             }}
           />
-          <ActionButtonText>Left</ActionButtonText>
+          <ActionButtonText>???</ActionButtonText>
         </ActionButton>
         <Divider />
         <ActionButton
@@ -244,6 +244,9 @@ export function HomeScreen({ navigation }: Props) {
         <ActionButton
           accessibilityRole="button"
           activeOpacity={1.4}
+          onPress={() =>
+            navigation.navigate("Checklists", { initialTab: "tasks" })
+          }
           onPressIn={() => {
             setPressedButton("right");
             fadeIn(rightAnim);
@@ -261,7 +264,7 @@ export function HomeScreen({ navigation }: Props) {
               opacity: rightAnim,
             }}
           />
-          <ActionButtonText>Right</ActionButtonText>
+          <ActionButtonText>Tasks</ActionButtonText>
         </ActionButton>
       </BottomBar>
     </HomeContainer>

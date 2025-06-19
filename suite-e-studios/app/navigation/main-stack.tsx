@@ -14,7 +14,7 @@ import { useUser } from "../context/user-context";
 export type MainStackParamList = {
   Home: undefined;
   Settings: undefined;
-  Checklists: undefined;
+  Checklists: { initialTab?: "checklists" | "tasklists" | "tasks" };
   NotFound: undefined;
 };
 
