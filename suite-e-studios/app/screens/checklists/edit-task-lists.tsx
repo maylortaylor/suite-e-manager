@@ -77,35 +77,6 @@ export function EditTaskListsScreen({
       <Container>
         {taskLists.map((tl: any, i: number) => (
           <Collapsible key={tl.id} title={tl.name || "(New Task List)"}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginBottom: 8,
-              }}
-            >
-              <TouchableOpacity
-                onPress={async () => {
-                  if (Clipboard.setStringAsync) {
-                    await Clipboard.setStringAsync(tl.id);
-                  } else {
-                    Clipboard.setString(tl.id);
-                  }
-                  Alert.alert("Copied", "Task List ID copied to clipboard");
-                }}
-                style={{ marginRight: 6 }}
-              >
-                <IconSymbol
-                  name="doc.on.doc"
-                  size={20}
-                  color={theme.colors.primary}
-                />
-              </TouchableOpacity>
-              <ItemLabel fontSize={10} style={{ marginRight: 4 }}>
-                TaskList ID:
-              </ItemLabel>
-              <ItemLabel fontSize={10}>{tl.id}</ItemLabel>
-            </View>
             <ItemBox>
               <ItemLabel>Name</ItemLabel>
               <Input

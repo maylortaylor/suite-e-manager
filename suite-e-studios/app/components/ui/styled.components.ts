@@ -166,7 +166,7 @@ export const TaskRow = styled.View`
 export const TaskText = styled.Text<{ complete: boolean; theme: DefaultTheme }>`
   font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 28}px;
   color: ${({ complete, theme }: { complete: boolean; theme: DefaultTheme }) =>
-    complete ? theme.colors.divider : theme.colors.lightText};
+    complete ? theme.colors.mutedText : theme.colors.lightText};
   text-decoration-line: ${({ complete }: { complete: boolean }) =>
     complete ? "line-through" : "none"};
 `;
@@ -221,7 +221,7 @@ export const AuthInput = styled.TextInput<{ theme: DefaultTheme }>`
   padding: 12px;
   border-radius: 8px;
   border-width: 1px;
-  placeholderTextColor: ${({ theme }: { theme: DefaultTheme }) =>
+  placeholdertextcolor: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.mutedText};
   border-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.divider};
   font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 16}px;

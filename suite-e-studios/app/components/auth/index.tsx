@@ -72,7 +72,6 @@ export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
         accessibilityLabel="Password"
         returnKeyType="done"
         editable={!isLoading}
-        placeholderTextColor="#444"
       />
       <AuthButton
         onPress={handleLogin}
