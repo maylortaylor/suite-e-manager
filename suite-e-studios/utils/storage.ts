@@ -7,6 +7,14 @@ const SEEDED_FLAG = "hasSeededChecklistData";
 const TASKS_KEY = "tasks";
 const TASKLISTS_KEY = "taskLists";
 const CHECKLISTS_KEY = "checklists";
+const COMPLETED_TASKS_KEY = "completedTasks";
+
+export interface ChecklistData {
+  tasks: any[];
+  taskLists: any[];
+  checklists: any[];
+  completedTasks?: Set<string>;
+}
 
 export async function saveSetting(key: string, value: string): Promise<void> {
   try {
@@ -46,6 +54,32 @@ export async function getChecklistCache<T = unknown>(
   }
 }
 
+// Save all checklist data atomically
+export async function saveAllChecklistData(data: ChecklistData): Promise<void> {
+  try {
+    const promises = [
+      AsyncStorage.setItem(TASKS_KEY, JSON.stringify(data.tasks)),
+      AsyncStorage.setItem(TASKLISTS_KEY, JSON.stringify(data.taskLists)),
+      AsyncStorage.setItem(CHECKLISTS_KEY, JSON.stringify(data.checklists)),
+    ];
+
+    // Only save completed tasks if they exist
+    if (data.completedTasks) {
+      promises.push(
+        AsyncStorage.setItem(
+          COMPLETED_TASKS_KEY,
+          JSON.stringify(Array.from(data.completedTasks))
+        )
+      );
+    }
+
+    await Promise.all(promises);
+  } catch (e) {
+    console.error("Error saving checklist data:", e);
+    throw e;
+  }
+}
+
 // Merge new items into existing array by id
 export async function mergeAndSave(
   key: string,
@@ -81,16 +115,19 @@ export async function seedChecklistDataIfNeeded() {
     CHECKLISTS_KEY,
     JSON.stringify(globalChecklists.checklists)
   );
+  await AsyncStorage.setItem(COMPLETED_TASKS_KEY, JSON.stringify([]));
   await AsyncStorage.setItem(SEEDED_FLAG, "true");
 }
 
 // Load all checklist data from storage, falling back to global data if needed
-export async function loadAllChecklistData() {
+export async function loadAllChecklistData(): Promise<ChecklistData> {
   try {
     // Try to load from storage first
-    const tasks = await getChecklistCache(TASKS_KEY);
-    const taskLists = await getChecklistCache(TASKLISTS_KEY);
-    const checklists = await getChecklistCache(CHECKLISTS_KEY);
+    const tasks = await getChecklistCache<any[]>(TASKS_KEY);
+    const taskLists = await getChecklistCache<any[]>(TASKLISTS_KEY);
+    const checklists = await getChecklistCache<any[]>(CHECKLISTS_KEY);
+    const completedTasksArray =
+      (await getChecklistCache<string[]>(COMPLETED_TASKS_KEY)) || [];
 
     // If any data is missing, seed and return global data
     if (!tasks || !taskLists || !checklists) {
@@ -99,17 +136,24 @@ export async function loadAllChecklistData() {
         tasks: globalChecklists.tasks,
         taskLists: globalChecklists.taskLists,
         checklists: globalChecklists.checklists,
+        completedTasks: new Set<string>(),
       };
     }
 
     // Return stored data
-    return { tasks, taskLists, checklists };
+    return {
+      tasks,
+      taskLists,
+      checklists,
+      completedTasks: new Set<string>(completedTasksArray),
+    };
   } catch (e) {
     // On error, return global data
     return {
       tasks: globalChecklists.tasks,
       taskLists: globalChecklists.taskLists,
       checklists: globalChecklists.checklists,
+      completedTasks: new Set<string>(),
     };
   }
 }
