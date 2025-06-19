@@ -22,6 +22,7 @@ import { getSetting, saveSetting } from "../../../utils/storage";
 import { Button } from "@/app/components/ui/Button";
 import { Divider } from "@/app/components/ui/Divider";
 import { UserMenu } from "@/app/components/ui/UserMenu";
+import { toast } from "../../../utils/toast";
 import { useTheme } from "styled-components/native";
 import { useThemeMode } from "../../context/theme-context";
 
@@ -74,7 +75,7 @@ export function SettingsScreen() {
     const trimmed = newCategory.trim();
     if (!trimmed) return;
     if (categories.includes(trimmed)) {
-      Alert.alert("Duplicate", "Category already exists.");
+      toast.error("Category already exists");
       return;
     }
     setCategories([...categories, trimmed]);
@@ -89,7 +90,7 @@ export function SettingsScreen() {
     const trimmed = newRole.trim();
     if (!trimmed) return;
     if (roles.includes(trimmed)) {
-      Alert.alert("Duplicate", "Role already exists.");
+      toast.error("Role already exists");
       return;
     }
     setRoles([...roles, trimmed]);
@@ -105,9 +106,9 @@ export function SettingsScreen() {
     try {
       await saveSetting(CATEGORY_KEY, JSON.stringify(categories));
       await saveSetting(ROLE_KEY, JSON.stringify(roles));
-      Alert.alert("Saved", "Settings saved successfully.");
+      toast.success("Settings saved successfully");
     } catch (e) {
-      Alert.alert("Error", "Failed to save settings.");
+      toast.error("Failed to save settings");
     }
     setSaving(false);
   }

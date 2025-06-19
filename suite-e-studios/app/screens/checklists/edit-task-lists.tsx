@@ -1,6 +1,6 @@
 /** @format */
 
-import { Alert, Button, ScrollView, View } from "react-native";
+import { Button, ScrollView, View } from "react-native";
 import {
   Chip,
   ChipLabel,
@@ -20,6 +20,7 @@ import React from "react";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import type { Task } from "../../../types/task";
 import type { TaskList } from "../../../types/task-list";
+import { toast } from "../../../utils/toast";
 import { useChecklist } from "../../context/checklist-context";
 import { useTheme } from "styled-components/native";
 
@@ -73,9 +74,9 @@ export function EditTaskListsScreen() {
           checklists: state.checklists,
         },
       });
-      Alert.alert("Success", "Task lists saved successfully");
+      toast.success("Task lists saved successfully");
     } catch (e) {
-      Alert.alert("Error", "Failed to save task lists");
+      toast.error("Failed to save task lists");
       dispatch({ type: "SET_ERROR", error: e as Error });
     } finally {
       dispatch({ type: "SET_LOADING", isLoading: false });

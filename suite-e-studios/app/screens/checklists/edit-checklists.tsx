@@ -1,6 +1,6 @@
 /** @format */
 
-import { Alert, Button, ScrollView, View } from "react-native";
+import { Button, ScrollView, View } from "react-native";
 import {
   Chip,
   ChipLabel,
@@ -20,6 +20,7 @@ import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import React from "react";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import type { TaskList } from "../../../types/task-list";
+import { toast } from "../../../utils/toast";
 import { useChecklist } from "../../context/checklist-context";
 import { useTheme } from "styled-components/native";
 
@@ -43,6 +44,7 @@ export function EditChecklistsScreen() {
       id: generateChecklistId(),
       name: "",
       taskListIds: [],
+      taskIds: [],
     };
     dispatch({ type: "ADD_CHECKLIST", checklist: newChecklist });
   }
@@ -73,9 +75,9 @@ export function EditChecklistsScreen() {
           checklists: state.checklists,
         },
       });
-      Alert.alert("Success", "Checklists saved successfully");
+      toast.success("Checklists saved successfully");
     } catch (e) {
-      Alert.alert("Error", "Failed to save checklists");
+      toast.error("Failed to save checklists");
       dispatch({ type: "SET_ERROR", error: e as Error });
     } finally {
       dispatch({ type: "SET_LOADING", isLoading: false });
@@ -162,6 +164,55 @@ export function EditChecklistsScreen() {
                       value: tl.id,
                     }))}
                   placeholder="Add task list by name..."
+                />
+              </View>
+              <ItemLabel>Individual Tasks</ItemLabel>
+              <View style={{ position: "relative", marginBottom: 16 }}>
+                <ChipRow>
+                  {(cl.taskIds || []).map((id: string) => {
+                    const task = state.tasks.find((t) => t.id === id);
+                    return (
+                      <Chip key={id} theme={theme}>
+                        <ChipLabel theme={theme}>
+                          {task ? task.description : id}
+                        </ChipLabel>
+                        <ChipRemove
+                          theme={theme}
+                          onPress={() => {
+                            handleUpdateChecklist(
+                              i,
+                              "taskIds",
+                              (cl.taskIds || []).filter((tid) => tid !== id)
+                            );
+                          }}
+                        >
+                          <IconSymbol
+                            name="xmark"
+                            size={16}
+                            color={theme.colors.input}
+                          />
+                        </ChipRemove>
+                      </Chip>
+                    );
+                  })}
+                </ChipRow>
+                <StyledPicker
+                  value={""}
+                  onValueChange={(taskId: string) => {
+                    if (taskId) {
+                      handleUpdateChecklist(i, "taskIds", [
+                        ...(cl.taskIds || []),
+                        taskId,
+                      ]);
+                    }
+                  }}
+                  items={state.tasks
+                    .filter((t) => !(cl.taskIds || []).includes(t.id))
+                    .map((t) => ({
+                      label: t.description,
+                      value: t.id,
+                    }))}
+                  placeholder="Add task by description..."
                 />
               </View>
             </ItemBox>

@@ -7,10 +7,12 @@ import {
   saveAllChecklistData,
 } from "../../utils/storage";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Checklist } from "../../types/checklist";
 import type { ChecklistCollection } from "../../types/checklist-collection";
 import type { Task } from "../../types/task";
 import type { TaskList } from "../../types/task-list";
+import { toast } from "../../utils/toast";
 
 interface State {
   checklists: Checklist[];
@@ -42,6 +44,23 @@ type Action =
       type: "SAVE_ALL";
       data: { tasks: Task[]; taskLists: TaskList[]; checklists: Checklist[] };
     };
+
+async function handleSaveAll(state: State) {
+  try {
+    await AsyncStorage.setItem(
+      "global.checklists.json",
+      JSON.stringify({
+        tasks: state.tasks,
+        taskLists: state.taskLists,
+        checklists: state.checklists,
+      })
+    );
+    toast.success("Changes saved successfully");
+  } catch (e) {
+    toast.error("Failed to save changes");
+    throw e;
+  }
+}
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -101,8 +120,10 @@ function reducer(state: State, action: Action): State {
     case "SET_LOADING":
       return { ...state, isLoading: action.isLoading };
     case "SET_ERROR":
+      toast.error("An error occurred", action.error?.message);
       return { ...state, error: action.error };
     case "SAVE_ALL":
+      handleSaveAll(state);
       return {
         ...state,
         tasks: action.data.tasks,

@@ -2,7 +2,7 @@
 
 import * as Clipboard from "expo-clipboard";
 
-import { Alert, Button, ScrollView, View } from "react-native";
+import { Button, ScrollView, View } from "react-native";
 import {
   Container,
   Input,
@@ -19,6 +19,7 @@ import { Divider } from "@/app/components/ui/Divider";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { TouchableOpacity } from "react-native";
+import { toast } from "../../../utils/toast";
 import { useChecklist } from "../../context/checklist-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
@@ -127,9 +128,9 @@ export function EditTasksScreen() {
           checklists: state.checklists,
         },
       });
-      Alert.alert("Success", "Tasks saved successfully");
+      toast.success("Tasks saved successfully");
     } catch (e) {
-      Alert.alert("Error", "Failed to save tasks");
+      toast.error("Failed to save tasks");
       dispatch({ type: "SET_ERROR", error: e as Error });
     } finally {
       dispatch({ type: "SET_LOADING", isLoading: false });
@@ -169,7 +170,7 @@ export function EditTasksScreen() {
               <TouchableOpacity
                 onPress={async () => {
                   await Clipboard.setStringAsync(t.id);
-                  Alert.alert("Copied", "Task ID copied to clipboard");
+                  toast.info("Task ID copied to clipboard");
                 }}
                 style={{ marginRight: 6 }}
               >
