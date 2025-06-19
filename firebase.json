@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist",
+    "public": "./suite-e-studios/dist",
     "ignore": [
       "firebase.json",
       "**/.*",
