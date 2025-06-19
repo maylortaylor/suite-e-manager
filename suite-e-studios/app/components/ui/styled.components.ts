@@ -154,7 +154,7 @@ export const ChecklistTitle = styled.Text<{ theme: DefaultTheme }>`
   font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 36}px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.primary};
 `;
 
 export const TaskRow = styled.View`

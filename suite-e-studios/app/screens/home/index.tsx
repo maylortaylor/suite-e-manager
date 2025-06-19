@@ -14,7 +14,11 @@ import {
   RoleText,
   WelcomeText,
 } from "@/app/components/ui/styled.components";
-import { Animated, ScrollView, StyleSheet } from "react-native";
+import { Animated, ScrollView, StyleSheet, Text } from "react-native";
+import {
+  loadAllChecklistData,
+  seedChecklistDataIfNeeded,
+} from "../../../utils/storage";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ChecklistList } from "../../components/checklist";
@@ -27,6 +31,30 @@ import { useTheme } from "styled-components/native";
 import { useUser } from "../../context/user-context";
 
 const globalChecklists = require("../../../global.checklists.json");
+
+interface Task {
+  id: string;
+  description: string;
+  category: string;
+  role: string;
+}
+
+interface TaskList {
+  id: string;
+  name: string;
+  taskIds: string[];
+}
+
+interface Checklist {
+  id: string;
+  name: string;
+  role: string;
+  isGlobal: boolean;
+  taskListIds: string[];
+  taskIds: string[];
+  taskLists?: TaskList[];
+  tasks?: Task[];
+}
 
 function getRoleLabel(roleId: string) {
   if (roleId === "admin") return "Admin";
@@ -47,12 +75,16 @@ export function HomeScreen({ navigation }: Props) {
   const leftAnim = React.useRef(new Animated.Value(0)).current;
   const changeRoleAnim = React.useRef(new Animated.Value(0)).current;
   const rightAnim = React.useRef(new Animated.Value(0)).current;
-  const [allChecklists, setAllChecklists] = React.useState<any[]>([]);
+  const [allChecklists, setAllChecklists] = React.useState<Checklist[]>([]);
   const [allRoles, setAllRoles] = React.useState<string[]>([]);
-  const [randomChecklist, setRandomChecklist] = React.useState<any | null>(
-    null
-  );
+  const [randomChecklist, setRandomChecklist] =
+    React.useState<Checklist | null>(null);
   const [randomRole, setRandomRole] = React.useState<string | null>(null);
+  const [checklistData, setChecklistData] = React.useState<{
+    tasks: Task[];
+    taskLists: TaskList[];
+    checklists: Checklist[];
+  } | null>(null);
 
   const fadeOut = (anim: Animated.Value) => {
     Animated.timing(anim, {
@@ -127,14 +159,18 @@ export function HomeScreen({ navigation }: Props) {
       let isActive = true;
       async function load() {
         try {
-          const stored = await AsyncStorage.getItem("global.checklists.json");
+          const data = await loadAllChecklistData();
           const rolesStored = await AsyncStorage.getItem("task-roles");
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            if (isActive) setAllChecklists(parsed.checklists || []);
-          }
-          if (rolesStored) {
-            if (isActive) setAllRoles(JSON.parse(rolesStored));
+          if (isActive) {
+            setChecklistData({
+              tasks: data.tasks as Task[],
+              taskLists: data.taskLists as TaskList[],
+              checklists: data.checklists as Checklist[],
+            });
+            setAllChecklists(data.checklists as Checklist[]);
+            if (rolesStored) {
+              setAllRoles(JSON.parse(rolesStored));
+            }
           }
         } catch {}
       }
@@ -145,12 +181,27 @@ export function HomeScreen({ navigation }: Props) {
     }, [])
   );
 
+  // Update random checklist data when checklistData changes
+  React.useEffect(() => {
+    if (checklistData && randomChecklist) {
+      setRandomChecklist({
+        ...randomChecklist,
+        taskLists: checklistData.taskLists,
+        tasks: checklistData.tasks,
+      });
+    }
+  }, [checklistData]);
+
   // Shuffle function
-  function shuffleCombo() {
-    if (allChecklists.length > 0) {
-      setRandomChecklist(
-        allChecklists[Math.floor(Math.random() * allChecklists.length)]
-      );
+  const shuffleCombo = React.useCallback(() => {
+    if (allChecklists.length > 0 && checklistData) {
+      const newChecklist =
+        allChecklists[Math.floor(Math.random() * allChecklists.length)];
+      setRandomChecklist({
+        ...newChecklist,
+        taskLists: checklistData.taskLists,
+        tasks: checklistData.tasks,
+      });
     } else {
       setRandomChecklist(null);
     }
@@ -159,14 +210,19 @@ export function HomeScreen({ navigation }: Props) {
     } else {
       setRandomRole(null);
     }
-  }
+  }, [allChecklists, allRoles, checklistData]);
 
   // Shuffle on first load of checklists/roles
   React.useEffect(() => {
-    if (allChecklists.length && allRoles.length) {
+    if (allChecklists.length && allRoles.length && !randomChecklist) {
       shuffleCombo();
     }
-  }, [allChecklists, allRoles]);
+  }, [allChecklists, allRoles, shuffleCombo]);
+
+  // Seed checklist data for new users
+  React.useEffect(() => {
+    seedChecklistDataIfNeeded();
+  }, []);
 
   if (!state.user) {
     return (
@@ -189,44 +245,19 @@ export function HomeScreen({ navigation }: Props) {
         {randomChecklist && randomRole && (
           <DashboardBox>
             <RoleText>
-              <b>Random Checklist:</b> {randomChecklist.name || "(Unnamed)"}
+              <Text style={{ fontWeight: "bold" }}>Random Checklist:</Text>{" "}
+              {randomChecklist.name || "(Unnamed)"}
             </RoleText>
             <RoleText>
-              <b>Random Role:</b> {randomRole}
+              <Text style={{ fontWeight: "bold" }}>Random Role:</Text>{" "}
+              {getRoleLabel(randomRole)}
             </RoleText>
           </DashboardBox>
         )}
-        {/* Restore the original dashboard and checklist UI */}
-        {/* <DashboardBox>
-          {state.user.roleId === "admin" && (
-            <RoleText>Admin dashboard coming soon…</RoleText>
-          )}
-          {state.user.roleId === "sound-engineer" && (
-            <RoleText>Sound Engineer dashboard coming soon…</RoleText>
-          )}
-          {state.user.roleId === "event-producer" && (
-            <RoleText>Event Producer dashboard coming soon…</RoleText>
-          )}
-          {state.user.roleId === "door-person" && (
-            <RoleText>Door Person dashboard coming soon…</RoleText>
-          )}
-          {state.user.roleId === "bar-person" && (
-            <RoleText>Bar Person dashboard coming soon…</RoleText>
-          )}
-          {![
-            "admin",
-            "sound-engineer",
-            "event-producer",
-            "door-person",
-            "bar-person",
-          ].includes(state.user.roleId) && (
-            <RoleText>General user dashboard coming soon…</RoleText>
-          )}
-        </DashboardBox> */}
         <ChecklistList
           checklist={randomChecklist}
-          taskLists={globalChecklists.taskLists}
-          tasks={globalChecklists.tasks}
+          taskLists={randomChecklist?.taskLists || []}
+          tasks={randomChecklist?.tasks || []}
         />
       </ScrollView>
       <BottomBar>

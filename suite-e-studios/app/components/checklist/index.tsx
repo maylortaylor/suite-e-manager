@@ -8,24 +8,46 @@ import {
   ChecklistTitle,
   Checkmark,
   Container,
+  Label,
   TaskRow,
   TaskText,
 } from "@/app/components/ui/styled.components";
 
-import { useChecklist } from "../../context/checklist-context";
+interface Task {
+  id: string;
+  description: string;
+  category: string;
+  role: string;
+}
+
+interface TaskList {
+  id: string;
+  name: string;
+  taskIds: string[];
+}
+
+interface Checklist {
+  id: string;
+  name: string;
+  role: string;
+  isGlobal: boolean;
+  taskListIds: string[];
+  taskIds: string[];
+  taskLists?: TaskList[];
+  tasks?: Task[];
+}
+
+interface ChecklistListProps {
+  checklist: Checklist | null;
+  taskLists?: TaskList[];
+  tasks?: Task[];
+}
 
 export function ChecklistList({
   checklist,
   taskLists,
   tasks,
-}: { checklist?: any; taskLists?: any[]; tasks?: any[] } = {}) {
-  const { state, dispatch } = useChecklist();
-  // If rendering a specific checklist, use its own taskLists/tasks if present, else fall back to props/context
-  const allTaskLists =
-    checklist && checklist.taskLists ? checklist.taskLists : taskLists || [];
-  const allTasks =
-    checklist && checklist.tasks ? checklist.tasks : tasks || state.tasks;
-
+}: ChecklistListProps) {
   // Local state for visual completion (strikethrough/muted) for all checklists
   const [completed, setCompleted] = React.useState<Set<string>>(
     () => new Set()
@@ -48,65 +70,70 @@ export function ChecklistList({
     });
   }
 
+  if (!checklist) {
+    return null;
+  }
+
+  const allTaskLists = checklist.taskLists || taskLists || [];
+  const allTasks = checklist.tasks || tasks || [];
+
   return (
     <Container>
-      {/* Show the random checklist if provided */}
-      {checklist && (
-        <ChecklistBox key={checklist.id}>
-          <ChecklistTitle>{checklist.name}</ChecklistTitle>
-          {/* Direct tasks */}
-          {checklist.taskIds.map((taskId: string) => {
-            const task = allTasks.find((t: any) => t.id === taskId);
-            if (!task) return null;
-            const isComplete = completed.has(task.id);
-            return (
-              <TaskRow key={task.id} onPress={() => handleToggleTask(task.id)}>
-                <Checkbox
-                  onPress={() => handleToggleTask(task.id)}
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: isComplete }}
-                >
-                  {isComplete && <Checkmark />}
-                </Checkbox>
-                <TaskText complete={isComplete}>{task.description}</TaskText>
-              </TaskRow>
-            );
-          })}
-          {/* Tasks from each associated task list */}
-          {checklist.taskListIds &&
-            checklist.taskListIds.map((tlid: string) => {
-              const tl = allTaskLists.find((t: any) => t.id === tlid);
-              if (!tl) return null;
+      <ChecklistTitle>{checklist.name}</ChecklistTitle>
+      <ChecklistBox key={checklist.id}>
+        {/* Direct tasks */}
+        {checklist.taskIds?.length > 0 && (
+          <Container>
+            <Label fontSize={32}>General Tasks</Label>
+            {checklist.taskIds.map((taskId: string) => {
+              const task = allTasks.find((t: Task) => t.id === taskId);
+              if (!task) return null;
+              const isComplete = completed.has(task.id);
               return (
-                <React.Fragment key={tl.id}>
-                  <ChecklistTitle>{tl.name}</ChecklistTitle>
-                  {tl.taskIds.map((taskId: string) => {
-                    const task = allTasks.find((t: any) => t.id === taskId);
-                    if (!task) return null;
-                    const isComplete = completed.has(task.id);
-                    return (
-                      <TaskRow
-                        key={task.id}
-                        onPress={() => handleToggleTask(task.id)}
-                      >
-                        <Checkbox
-                          onPress={() => handleToggleTask(task.id)}
-                          accessibilityRole="checkbox"
-                          accessibilityState={{ checked: isComplete }}
-                        >
-                          {isComplete && <Checkmark />}
-                        </Checkbox>
-                        <TaskText complete={isComplete}>
-                          {task.description}
-                        </TaskText>
-                      </TaskRow>
-                    );
-                  })}
-                </React.Fragment>
+                <TaskRow key={task.id}>
+                  <Checkbox
+                    onPress={() => handleToggleTask(task.id)}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: isComplete }}
+                  >
+                    {isComplete && <Checkmark />}
+                  </Checkbox>
+                  <TaskText complete={isComplete}>{task.description}</TaskText>
+                </TaskRow>
               );
             })}
-        </ChecklistBox>
-      )}
+          </Container>
+        )}
+        {/* Tasks from each associated task list */}
+        {checklist.taskListIds?.map((tlid: string) => {
+          const tl = allTaskLists.find((t: TaskList) => t.id === tlid);
+          if (!tl) return null;
+          return (
+            <ChecklistBox key={tl.id}>
+              <Label fontSize={32}>{tl.name}</Label>
+              {tl.taskIds.map((taskId: string) => {
+                const task = allTasks.find((t: Task) => t.id === taskId);
+                if (!task) return null;
+                const isComplete = completed.has(task.id);
+                return (
+                  <TaskRow key={task.id}>
+                    <Checkbox
+                      onPress={() => handleToggleTask(task.id)}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: isComplete }}
+                    >
+                      {isComplete && <Checkmark />}
+                    </Checkbox>
+                    <TaskText complete={isComplete}>
+                      {task.description}
+                    </TaskText>
+                  </TaskRow>
+                );
+              })}
+            </ChecklistBox>
+          );
+        })}
+      </ChecklistBox>
     </Container>
   );
 }
