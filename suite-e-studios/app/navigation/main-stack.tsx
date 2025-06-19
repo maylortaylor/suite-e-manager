@@ -46,7 +46,7 @@ export function MainStack() {
         headerLeft: () => (
           <TouchableOpacity onPress={() => navigation.navigate("Home")}>
             <Image
-              source={require("../../images/Suite_E_Logo_small.png")}
+              source={require("../../assets/images/SuiteE_vector_WHITE.png")}
               style={{ width: 40, height: 40, marginLeft: 10 }}
               resizeMode="contain"
             />
