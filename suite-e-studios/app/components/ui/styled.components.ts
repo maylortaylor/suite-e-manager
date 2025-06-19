@@ -9,7 +9,7 @@ const screenWidth = Dimensions.get("window").width;
 export const Input = styled.TextInput<{ theme: DefaultTheme }>`
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.input};
-  color: #222;
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
   border: 1px solid #e0e7ef;
   border-radius: 6px;
   padding: 8px;
@@ -97,7 +97,7 @@ export const Label = styled.Text<{
 }>`
   font-size: ${({ fontSize }: { fontSize?: number }) => fontSize || 24}px;
   margin-right: 16px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
 `;
 
 export const ItemLabel = styled.Text<{
@@ -201,7 +201,7 @@ export const SectionTitle = styled.Text<{ theme: DefaultTheme }>`
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
 `;
 
 export const AuthContainer = styled.View<{ theme: DefaultTheme }>`
@@ -260,12 +260,12 @@ export const WelcomeText = styled.Text<{ theme: DefaultTheme }>`
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
 `;
 
 export const RoleText = styled.Text<{ theme: DefaultTheme }>`
   font-size: 18px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.lightText};
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
   margin-bottom: 24px;
 `;
 

@@ -9,7 +9,9 @@ import {
   AuthErrorText,
   AuthInput,
 } from "@/app/components/ui/styled.components";
+
 import { Image } from "react-native";
+import { useThemeMode } from "../../context/theme-context";
 
 interface LoginFormProps {
   onLogin: (email: string, password: string) => void;
@@ -20,6 +22,7 @@ interface LoginFormProps {
 export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const { colorScheme } = useThemeMode();
 
   function handleLogin() {
     onLogin(email.trim(), password);
@@ -28,7 +31,11 @@ export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
   return (
     <AuthContainer accessibilityRole="form">
       <Image
-        source={require("../../../images/Suite_E_Logo_small.png")}
+        source={
+          colorScheme === "dark"
+            ? require("../../../images/SuiteE_vector_WHITE.png")
+            : require("../../../images/SuiteE_vector_BLACK.png")
+        }
         style={{
           width: 240,
           height: 240,

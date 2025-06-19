@@ -1,14 +1,14 @@
 {
   "light": {
-    "background": "#E5E3DC",
+    "background": "#FFDDAE",
     "primary": "#F28500",
     "secondary": "#66a8e0",
     "accent": "#966c96",
     "highlight": "#f6eeba",
-    "lightText": "#f2f2f2",
+    "lightText": "#F2F9FF",
     "darkText": "#000000",
     "mutedText": "#5C6270",
-    "input": "#E5E3DC",
+    "input": "#FBFBFB",
     "divider": "#5C6270"
   },
   "dark": {
@@ -17,10 +17,10 @@
     "secondary": "#328dcb",
     "accent": "#966c96",
     "highlight": "#f6eeba",
-    "lightText": "#f2f2f2",
-    "darkText": "#000000",
-    "mutedText": "#5C6270",
-    "input": "#E5E3DC",
-    "divider": "#5C6270"
+    "lightText": "#F2F9FF",
+    "darkText": "#E5E3DC",
+    "mutedText": "#b0b0b0",
+    "input": "#2c2c2c",
+    "divider": "#888"
   }
 }

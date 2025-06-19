@@ -10,10 +10,11 @@ import {
 } from "@/app/components/ui/styled.components";
 import { getSetting, saveSetting } from "../../../utils/storage";
 
-import { UserMenu } from "@/app/components/ui/UserMenu";
 import { Switch } from "react-native";
+import { UserMenu } from "@/app/components/ui/UserMenu";
 import { useColorScheme } from "react-native";
 import { useTheme } from "styled-components/native";
+import { useThemeMode } from "../../context/theme-context";
 
 const UI_SIZE_KEY = "ui-size";
 const DARK_MODE_KEY = "dark-mode";
@@ -21,27 +22,15 @@ const DARK_MODE_KEY = "dark-mode";
 type UiSize = "comfy" | "large";
 
 export function SettingsScreen() {
-  const systemColorScheme = useColorScheme();
+  const { mode, setMode } = useThemeMode();
   const theme = useTheme();
-  const [isDarkMode, setIsDarkMode] = React.useState(
-    systemColorScheme === "dark"
-  );
   const [uiSize, setUiSize] = React.useState<UiSize>("comfy");
 
   React.useEffect(() => {
-    getSetting(DARK_MODE_KEY).then((value) => {
-      if (value === "true") setIsDarkMode(true);
-      if (value === "false") setIsDarkMode(false);
-    });
     getSetting(UI_SIZE_KEY).then((value) => {
       if (value === "large" || value === "comfy") setUiSize(value);
     });
   }, []);
-
-  function handleDarkModeToggle(value: boolean) {
-    setIsDarkMode(value);
-    saveSetting(DARK_MODE_KEY, value ? "true" : "false");
-  }
 
   function handleUiSizeToggle() {
     const newSize = uiSize === "comfy" ? "large" : "comfy";
@@ -55,8 +44,8 @@ export function SettingsScreen() {
       <Row>
         <Label>Dark Mode</Label>
         <Switch
-          value={isDarkMode}
-          onValueChange={handleDarkModeToggle}
+          value={mode === "dark"}
+          onValueChange={(val) => setMode(val ? "dark" : "light")}
           trackColor={{ false: theme.colors.input, true: theme.colors.input }}
         />
       </Row>

@@ -3,6 +3,10 @@
 import * as React from "react";
 
 import {
+  ThemeProvider as AppThemeProvider,
+  useThemeMode,
+} from "./context/theme-context";
+import {
   DarkTheme as NavigationDarkTheme,
   DefaultTheme as NavigationDefaultTheme,
   ThemeProvider as NavigationThemeProvider,
@@ -53,7 +57,15 @@ const navLightTheme = {
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  return (
+    <AppThemeProvider>
+      <RootLayoutInner />
+    </AppThemeProvider>
+  );
+}
+
+function RootLayoutInner() {
+  const { colorScheme } = useThemeMode();
   const theme = colorScheme === "dark" ? darkTheme : lightTheme;
   const navTheme = colorScheme === "dark" ? navDarkTheme : navLightTheme;
   return (
@@ -63,9 +75,7 @@ export default function RootLayout() {
           <UserProvider>
             <ChecklistProvider>
               <NavigationThemeProvider value={navTheme}>
-                {/* <NavigationContainer theme={navTheme}> */}
                 <MainStack />
-                {/* </NavigationContainer> */}
               </NavigationThemeProvider>
             </ChecklistProvider>
           </UserProvider>
