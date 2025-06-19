@@ -155,7 +155,7 @@ export function EditTasksScreen() {
   }
 
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ paddingBottom: 800 }}>
       <Label>Tasks</Label>
       <Container>
         {state.tasks.map((t: Task, i: number) => (
@@ -236,14 +236,6 @@ export function EditTasksScreen() {
           title={state.isLoading ? "Saving..." : "Save All"}
           onPress={handleSave}
           disabled={state.isLoading}
-        />
-        <Divider
-          orientation="horizontal"
-          thickness={1}
-          length={8}
-          marginVertical={40}
-          marginHorizontal={40}
-          color={theme.colors.divider}
         />
       </Container>
     </ScrollView>

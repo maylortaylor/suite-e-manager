@@ -102,7 +102,7 @@ export function EditChecklistsScreen() {
   }
 
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ paddingBottom: 600 }}>
       <Label>Checklists</Label>
       <Container>
         {state.checklists.map((cl: Checklist, i: number) => (
@@ -235,14 +235,6 @@ export function EditChecklistsScreen() {
           title={state.isLoading ? "Saving..." : "Save All"}
           onPress={handleSave}
           disabled={state.isLoading}
-        />
-        <Divider
-          orientation="horizontal"
-          thickness={1}
-          length={8}
-          marginVertical={40}
-          marginHorizontal={40}
-          color={theme.colors.divider}
         />
       </Container>
     </ScrollView>

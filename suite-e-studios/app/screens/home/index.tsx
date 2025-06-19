@@ -224,7 +224,7 @@ export function HomeScreen({ navigation }: Props) {
   return (
     <HomeContainer>
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: 600 }}
         style={{ flex: 1 }}
       >
         <WelcomeText>Welcome, {state.user.name}!</WelcomeText>

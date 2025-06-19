@@ -114,7 +114,7 @@ export function SettingsScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 1000 }}>
       <Container>
         <SectionTitle>User Settings</SectionTitle>
         <Row>
@@ -227,13 +227,6 @@ export function SettingsScreen() {
         >
           {saving ? "Saving..." : "Save Settings"}
         </Button>
-        <Divider
-          orientation="horizontal"
-          thickness={1}
-          length={8}
-          marginHorizontal={8}
-          color={theme.colors.divider}
-        />
       </Container>
     </ScrollView>
   );
