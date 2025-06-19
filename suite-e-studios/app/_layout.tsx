@@ -126,7 +126,13 @@ function RootLayoutInner() {
     ...(colorScheme === "dark" ? darkTheme : lightTheme),
     uiSize,
   };
-  const navTheme = colorScheme === "dark" ? navDarkTheme : navLightTheme;
+  const navTheme = {
+    ...(colorScheme === "dark" ? navDarkTheme : navLightTheme),
+    colors: {
+      ...(colorScheme === "dark" ? navDarkTheme.colors : navLightTheme.colors),
+      headerTintColor: "#FFFFFF",
+    },
+  };
 
   return (
     <PortalProvider>

@@ -35,6 +35,7 @@ export function MainStack() {
       screenOptions={{
         headerShown: true,
         headerRight: () => (state.user ? <UserMenu /> : null),
+        headerTintColor: "#FFFFFF",
       }}
     >
       <Stack.Screen
