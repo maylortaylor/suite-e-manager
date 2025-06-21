@@ -38,17 +38,17 @@ export const NavProvider: React.FC<{ children: React.ReactNode }> = ({
         {
           name: "Checklists",
           target: "checklists",
-          onPress: () => {},
+          onPress: () => navigation.navigate("Checklists"),
         },
         {
           name: "Task Lists",
           target: "tasklists",
-          onPress: () => {},
+          onPress: () => navigation.navigate("TaskLists"),
         },
         {
           name: "Tasks",
           target: "tasks",
-          onPress: () => {},
+          onPress: () => navigation.navigate("Tasks"),
         },
       ];
     }

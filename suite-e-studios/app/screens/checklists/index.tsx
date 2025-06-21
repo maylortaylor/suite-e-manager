@@ -13,6 +13,8 @@ import { EditTasksScreen } from "./edit-tasks";
 import { MainStackParamList } from "../../navigation/main-stack";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { View } from "react-native";
+import { BottomNavBar, NavTab } from "@/app/components/ui/BottomNavBar";
+import { useNav } from "@/app/context/nav-context";
 
 type Props = NativeStackScreenProps<MainStackParamList, "Checklists">;
 
@@ -20,28 +22,26 @@ export function ChecklistsScreen({ navigation }: Props) {
   const route = useRoute();
   const initialTab =
     (route.params && (route.params as any).initialTab) || "checklists";
-  const [activeTab, setActiveTab] = useState<
-    "checklists" | "tasklists" | "tasks"
-  >(initialTab);
+  // const [activeTab, setActiveTab] = useState<
+  //   "checklists" | "tasklists" | "tasks"
+  // >(initialTab);
+  const { tabs, activeTab } = useNav();
 
-  const checklistTabs = [
-    { name: "1. Tasks", onPress: () => setActiveTab("tasks") },
-    { name: "2. Task Lists", onPress: () => setActiveTab("tasklists") },
-    { name: "3. Checklists", onPress: () => setActiveTab("checklists") },
+
+  const checklistTabs: NavTab[] = [
+    {
+      name: "1. Tasks", onPress: () => {},
+      target: "tasks"
+    },
+    {
+      name: "2. Task Lists", onPress: () => {},
+      target: "tasklists"
+    },
+    {
+      name: "3. Checklists", onPress: () => {},
+      target: "checklists"
+    },
   ];
-
-  const getActiveTabName = () => {
-    switch (activeTab) {
-      case "tasks":
-        return "1. Tasks";
-      case "tasklists":
-        return "2. Task Lists";
-      case "checklists":
-        return "3. Checklists";
-      default:
-        return "";
-    }
-  };
 
   useFocusEffect(
     useCallback(() => {
@@ -63,6 +63,12 @@ export function ChecklistsScreen({ navigation }: Props) {
           {activeTab === "tasklists" && <EditTaskListsScreen />}
           {activeTab === "tasks" && <EditTasksScreen />}
         </View>
+        {<BottomNavBar
+            tabs={checklistTabs}
+            activeTab={activeTab}
+            navigation={navigation}
+          />
+        }
       </Container>
     </AppLayout>
   );

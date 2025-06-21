@@ -8,7 +8,7 @@ import {
   ThemeProvider as AppThemeProvider,
   useThemeMode,
 } from "./context/theme-context";
-import { NavProvider, useNav } from "./context/nav-context";
+import { NavProvider } from "./context/nav-context";
 import {
   DarkTheme as NavigationDarkTheme,
   DefaultTheme as NavigationDefaultTheme,
@@ -16,16 +16,13 @@ import {
 } from "@react-navigation/native";
 import Toast, { BaseToast, ToastConfig } from "react-native-toast-message";
 
-import { BottomNavBar } from "./components/ui/BottomNavBar";
 import { ChecklistProvider } from "./context/checklist-context";
 import { MainStack } from "./navigation/main-stack";
 import { PortalProvider } from "@gorhom/portal";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider as StyledThemeProvider } from "styled-components/native";
 import { UserProvider } from "./context/user-context";
-import { View } from "react-native";
 import themeJson from "../globals.theme.json";
-import { useColorScheme } from "react-native";
 
 const darkTheme = {
   colors: themeJson.dark,
