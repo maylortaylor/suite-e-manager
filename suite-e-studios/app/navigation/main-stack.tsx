@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Image, TouchableOpacity } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import {
   NativeStackNavigationProp,
   createNativeStackNavigator,
@@ -20,7 +20,7 @@ import { useUser } from "../context/user-context";
 export type MainStackParamList = {
   Home: undefined;
   Settings: undefined;
-  Checklists: { initialTab?: "checklists" | "tasklists" | "tasks" };
+  Checklists: { tab?: "tasks" | "tasklists" | "checklists" };
   NotFound: undefined;
 };
 
@@ -34,7 +34,31 @@ export function MainStack() {
       initialRouteName="Home"
       screenOptions={({ navigation }) => ({
         headerShown: true,
-        headerRight: () => (state.user ? <UserMenu /> : null),
+        headerRight: () => (
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            {state.user && (
+              <>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("Checklists", { tab: "tasks" })
+                  }
+                >
+                  <Text style={{ color: "white", marginRight: 15 }}>
+                    Checklists
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Settings")}
+                >
+                  <Text style={{ color: "white", marginRight: 15 }}>
+                    Settings
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+            {state.user ? <UserMenu /> : null}
+          </View>
+        ),
         headerLeft: () => (
           <TouchableOpacity onPress={() => navigation.navigate("Home")}>
             <Image

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { Tab, Tabs } from "@/app/components/ui/Tabs";
 import { useCallback, useState } from "react";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 
@@ -13,62 +14,45 @@ import { EditTasksScreen } from "./edit-tasks";
 import { MainStackParamList } from "../../navigation/main-stack";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { View } from "react-native";
-import { BottomNavBar, NavTab } from "@/app/components/ui/BottomNavBar";
-import { useNav } from "@/app/context/nav-context";
 
 type Props = NativeStackScreenProps<MainStackParamList, "Checklists">;
+type ChecklistTab = "tasks" | "tasklists" | "checklists";
 
 export function ChecklistsScreen({ navigation }: Props) {
   const route = useRoute();
-  const initialTab =
-    (route.params && (route.params as any).initialTab) || "checklists";
-  // const [activeTab, setActiveTab] = useState<
-  //   "checklists" | "tasklists" | "tasks"
-  // >(initialTab);
-  const { tabs, activeTab } = useNav();
-
-
-  const checklistTabs: NavTab[] = [
-    {
-      name: "1. Tasks", onPress: () => {},
-      target: "tasks"
-    },
-    {
-      name: "2. Task Lists", onPress: () => {},
-      target: "tasklists"
-    },
-    {
-      name: "3. Checklists", onPress: () => {},
-      target: "checklists"
-    },
-  ];
+  const [activeTab, setActiveTab] = useState<ChecklistTab>("tasks");
 
   useFocusEffect(
     useCallback(() => {
-      // This will run when the screen comes into focus
-      const parent = navigation.getParent();
-      if (parent) {
-        parent.setOptions({
-          headerShown: true, // Or false, depending on your needs
-        });
-      }
-    }, [navigation])
+      const currentTab = (route.params as any)?.tab || "tasks";
+      setActiveTab(currentTab as ChecklistTab);
+    }, [route.params])
   );
+
+  const checklistTabs: Tab<ChecklistTab>[] = [
+    { name: "1. Tasks", target: "tasks" },
+    { name: "2. Task Lists", target: "tasklists" },
+    { name: "3. Checklists", target: "checklists" },
+  ];
+
+  const handleTabPress = (target: ChecklistTab) => {
+    setActiveTab(target);
+    navigation.setParams({ tab: target });
+  };
 
   return (
     <AppLayout navigation={navigation}>
+      <Tabs
+        tabs={checklistTabs}
+        activeTab={activeTab}
+        onTabPress={handleTabPress}
+      />
       <Container>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, paddingTop: 16 }}>
           {activeTab === "checklists" && <EditChecklistsScreen />}
           {activeTab === "tasklists" && <EditTaskListsScreen />}
           {activeTab === "tasks" && <EditTasksScreen />}
         </View>
-        {<BottomNavBar
-            tabs={checklistTabs}
-            activeTab={activeTab}
-            navigation={navigation}
-          />
-        }
       </Container>
     </AppLayout>
   );

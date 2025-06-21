@@ -2,23 +2,19 @@
 
 import * as React from "react";
 
-import { useNavigation, useRoute } from "@react-navigation/native";
-
+import { useNavigationState } from "@react-navigation/native";
 import { useUser } from "./user-context";
 
 interface NavContextType {
-  showBottomNav: boolean;
   activeRoute: string;
   tabs: NavTab[];
-  setShowBottomNav: (show: boolean) => void;
   setActiveTab: (tab: string) => void;
   activeTab: string;
 }
 
-interface NavTab {
+export interface NavTab {
   name: string;
   target: string;
-  onPress: () => void;
 }
 
 const NavContext = React.createContext<NavContextType | undefined>(undefined);
@@ -26,78 +22,34 @@ const NavContext = React.createContext<NavContextType | undefined>(undefined);
 export const NavProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [showBottomNav, setShowBottomNav] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState("Home");
+  const [activeTab, setActiveTab] = React.useState("tasks");
   const { state: userState } = useUser();
-  const navigation = useNavigation<any>();
-  const route = useRoute();
+  const routeName = useNavigationState(
+    (state) => state?.routes[state.index]?.name
+  );
 
   const tabs: NavTab[] = React.useMemo(() => {
-    if (route.name === "Checklists") {
-      return [
-        {
-          name: "Checklists",
-          target: "checklists",
-          onPress: () => navigation.navigate("Checklists"),
-        },
-        {
-          name: "Task Lists",
-          target: "tasklists",
-          onPress: () => navigation.navigate("TaskLists"),
-        },
-        {
-          name: "Tasks",
-          target: "tasks",
-          onPress: () => navigation.navigate("Tasks"),
-        },
-      ];
-    }
-
-    const defaultTabs = [
+    return [
       {
-        name: "Home",
-        target: "Home",
-        onPress: () => navigation.navigate("Home"),
+        name: "1. Tasks",
+        target: "tasks",
       },
       {
-        name: "Settings",
-        target: "Settings",
-        onPress: () => navigation.navigate("Settings"),
+        name: "2. Task Lists",
+        target: "tasklists",
+      },
+      {
+        name: "3. Checklists",
+        target: "checklists",
       },
     ];
-
-    if (userState.user?.roleId === "admin") {
-      return [
-        ...defaultTabs,
-        {
-          name: "Checklists",
-          target: "Checklists",
-          onPress: () =>
-            navigation.navigate("Checklists", {
-              initialTab: "checklists",
-            }),
-        },
-      ];
-    }
-
-    return defaultTabs;
-  }, [userState.user, navigation, route.name]);
-
-  React.useEffect(() => {
-    if (userState.user) {
-      setShowBottomNav(true);
-    } else {
-      setShowBottomNav(false);
-    }
-  }, [userState.user]);
+  }, []);
 
   return (
     <NavContext.Provider
       value={{
-        showBottomNav,
-        activeRoute: route.name,
+        activeRoute: routeName || "",
         tabs,
-        setShowBottomNav,
         activeTab,
         setActiveTab,
       }}

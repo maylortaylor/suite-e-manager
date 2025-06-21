@@ -483,3 +483,28 @@ export const CenteredSuggestionDropdown = styled.View<{ theme: DefaultTheme }>`
   overflow: hidden;
   align-self: center;
 `;
+
+export const TabsContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-around;
+  background-color: ${(props: { theme: DefaultTheme }) =>
+    props.theme.colors.background};
+  border-bottom-width: 1px;
+  border-bottom-color: ${(props: { theme: DefaultTheme }) =>
+    props.theme.colors.divider};
+`;
+
+export const TabButton = styled.TouchableOpacity<{ active?: boolean }>`
+  padding: 12px 16px;
+  border-bottom-width: 2px;
+  border-bottom-color: ${(props: { active?: boolean; theme: DefaultTheme }) =>
+    props.active ? props.theme.colors.accent : "transparent"};
+`;
+
+export const TabText = styled.Text<{ active?: boolean }>`
+  color: ${(props: { active?: boolean; theme: DefaultTheme }) =>
+    props.active ? props.theme.colors.accent : props.theme.colors.text};
+  font-weight: ${(props: { active?: boolean }) =>
+    props.active ? "bold" : "normal"};
+  font-size: 16px;
+`;
