@@ -1,0 +1,89 @@
+graph LR
+    subgraph "1. Physical Inputs (XLRs & Aux)"
+        A1("XLR 1: Vocals/Gtr 1")
+        A2("XLR 2: Vocals/Gtr 2")
+        A3("XLR 3: Vocals/Gtr 3")
+        A4("XLR 4: Vocals/Gtr 4")
+        B1("XLR 5: Bass")
+        B2("XLR 6: Keys")
+        B3("XLR 7: Guitar")
+        B4("XLR 8: Synth")
+        C1("XLR 9: Kick Drum")
+        C2("XLR 10: Snare Drum")
+        C3("XLR 11: Overhead 48v")
+        C4("XLR 13: Tom (optional)")
+        D("XLR 14: Spare")
+        E1("XLR 15: Side Stage/DJ L")
+        E2("XLR 16: Side Stage/DJ R")
+        G("Aux In 5/6: Bluetooth Audio")
+    end
+
+    subgraph "2. Behringer X32 Rack Mixer"
+        X32((X32 Rack))
+    end
+
+    subgraph "3. Internal Buses"
+        Mon1("Mix Bus 1: Monitor 1")
+        Mon2("Mix Bus 2: Monitor 2")
+        Mon3("Mix Bus 3: Monitor 3 (Optional)")
+        Mon4("Mix Bus 4: Monitor 4 (Optional)")
+        LivestreamMix("Mix Bus 5/6: Livestream Mix (Matrix Output)")
+        BusB("Bus 1: Band (Instruments)")
+        BusD("Bus 2: Drums")
+        BusV("Bus 3: Vocals")
+    end
+
+    subgraph "4. Main Outputs & Recording"
+        OutFOH("Main L/R Out (FOH Speakers)")
+        OutMon1("XLR Out 1: Mon 1")
+        OutMon2("XLR Out 2: Mon 2")
+        OutMon3("XLR Out 3: Mon 3")
+        OutMon4("XLR Out 4: Mon 4")
+        OutLS("XLR Out 5/6: Livestream")
+        RecUSB("USB Recording (Livestream Stereo)")
+    end
+
+    %% Connections
+    A1 --> X32
+    A2 --> X32
+    A3 --> X32
+    A4 --> X32
+    B1 --> X32
+    B2 --> X32
+    B3 --> X32
+    B4 --> X32
+    C1 --> X32
+    C2 --> X32
+    C3 --> X32
+    C4 --> X32
+    D --> X32
+    E1 --> X32
+    E2 --> X32
+    G --> X32
+
+    X32 --> BusV
+    X32 --> BusD
+    X32 --> BusB
+
+    BusV --> X32
+    BusD --> X32
+    BusB --> X32
+
+    X32 --> Mon1
+    X32 --> Mon2
+    X32 --> Mon3
+    X32 --> Mon4
+    X32 --> LivestreamMix
+
+    X32 --> OutFOH
+
+    Mon1 --> OutMon1
+    Mon2 --> OutMon2
+    Mon3 --> OutMon3
+    Mon4 --> OutMon4
+    LivestreamMix --> OutLS
+    LivestreamMix --> RecUSB
+
+    %% Styling (optional)
+    style LivestreamMix fill:#e0e0ff,stroke:#0000ff,stroke-width:2px,color:#000
+    linkStyle 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 stroke:#555,stroke-width:1px,fill:none;

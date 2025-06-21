@@ -43,3 +43,17 @@ app-example
 .dockerignore
 Dockerfile
 coverage/
+
+# Misc
+.eslintcache
+*.lock
+yarn-error.log
+*.pem
+
+# Firebase
+*.secret
+firebase-debug.log
+
+# Service Account Keys
+suite-e-studios-firebase-adminsdk.json
+firebaseConfig.ts

@@ -16,89 +16,38 @@ The user wants to deploy the web version of the Suite E Studios app to a Google 
 - Ensuring the build process is reproducible and documented for future updates.
 - **Task Management UX:** Allowing users to add new tasks easily, with persistence via AsyncStorage.
 
-# High-level Task Breakdown
-1. **Project Setup**
-   - [x] Initialize Expo project with TypeScript strict mode
-   - [x] Install core dependencies (react-navigation, react-query, styled-components/Tailwind, expo-image, etc.)
-2. **Directory Structure**
-   - [x] Create directories: `components/auth`, `components/checklist`, `components/settings`, `screens/home`, `screens/settings`, `navigation/main-stack`, `context`, `types`, `utils`
-3. **Authentication Flow**
-   - [ ] Implement Google OAuth authentication
-   - [x] Implement login screen (placeholder for Google OAuth)
-   - [x] Set up context/reducer for user/session state
-4. **Navigation**
-   - [x] Set up main stack navigator with role-based navigation placeholder
-   - [x] Implement basic dashboard/home screen
-5. **TypeScript Interfaces**
-   - [x] Define interfaces for User, Role, Event, Task, Checklist, ChecklistCollection
-6. **Settings & Local Storage**
-   - [x] Implement settings page (dark mode, UI size toggle)
-   - [x] Integrate local storage (AsyncStorage/react-native-encrypted-storage)
-7. **Checklist Management**
-   - [ ] Scaffold checklist components and context
-   - [ ] Support global/event-specific checklists and collections
-   - [ ] **Add Task Button & AsyncStorage**
-     - Add an "ADD TASK" button at the bottom of the Edit Tasks screen, styled consistently with the app.
-     - When pressed, append a new task (with unique ID, empty fields) to the list.
-     - Ensure new tasks are editable and saved with "Save All" (persisted to AsyncStorage).
-     - Success: User can add, edit, and save new tasks; tasks persist after reload.
-8. **Google Services Integration (Scaffolding)**
-   - [ ] Prepare API integration points for Google Calendar and Forms
-   - [ ] Add placeholder for viewing Google Form results
-9. **Testing & Error Handling**
-   - [ ] Set up Jest/React Native Testing Library
-   - [ ] Implement error boundaries and logging (expo-error-reporter/Sentry)
-10. **Web Build & Firebase Hosting**
-    - [x] Prepare the Expo/React Native app for web build
-    - [x] Set up a new Firebase project (if not already done)
-    - [x] Build the web app for static export (`npm run build`)
-    - [x] Ensure `firebase.json` is configured to serve the `dist` directory and SPA fallback
-    - [x] Add/verify npm scripts for build and deploy (`web:build`, `firebase:deploy`, `deploy`)
-    - [ ] Initialize Firebase Hosting in the project directory (if not already done)
-    - [ ] Deploy to Firebase Hosting (`npm run deploy`)
-    - [ ] Document the deployment process for future updates (in README)
-    - Success: Visiting the Firebase Hosting URL loads the latest web build and supports client-side routing.
-
 # Project Status Board
-- [ ] Implement Google OAuth authentication
 - [x] Initialize Expo project and set up TypeScript strict mode
-- [x] Install core dependencies (react-navigation, react-query, styled-components, expo-image, etc.)
-- [x] Establish initial directory structure (components, screens, navigation, etc.)
-- [x] Implement authentication flow (login screen)
-- [x] Set up context/reducer for user/session state
-- [x] Create basic dashboard/home screen
-- [x] Set up role-based navigation placeholder
-- [x] Outline TypeScript interfaces for User, Role, Event, Task, Checklist, ChecklistCollection
-- [x] Integrate local storage for settings and cached checklists
+- [x] Install core dependencies
+- [x] Establish initial directory structure
+- [x] Outline TypeScript interfaces for core data models
 - [x] Set up settings page with dark mode and UI size toggle
+- [x] Integrate local storage for settings
+- [x] Implement editable categories/roles in Settings page, persisted to AsyncStorage
+- [x] Prepare Expo app for web build
+- [x] Set up Firebase project and configure Hosting for Expo web build
+- [x] Add npm scripts for build and deploy
+- [x] **Data Migration:** Migrated all checklist data from local JSON to Cloud Firestore.
+- [x] **Database Seeding:** Created a repeatable Node.js script to seed Firestore with initial data, including tasks, lists, checklists, and users.
+- [x] **App Refactoring:** Refactored all data-related components and context to fetch and update data live from Firestore. This includes the Home screen and all "Edit" screens.
+- [x] **Authentication:** Replaced mock login with Firebase Authentication (email/password). The login flow now fetches the user's role from Firestore to display the correct checklist.
+- [x] **Logout:** Implemented a secure logout flow.
+- [x] **Security:** Deployed Firestore security rules to protect user data and require authentication for all database access.
+- [ ] Implement Google OAuth authentication
 - [ ] Scaffold checklist components and context
 - [ ] Support global/event-specific checklists and collections
 - [ ] Add Task Button & AsyncStorage (Edit Tasks screen)
 - [ ] Prepare Google Calendar and Google Forms integration scaffolding
-- [x] Prepare Expo app for web build
-- [x] Set up Firebase project
-- [x] Build web app for static export
-- [x] Configure Hosting for Expo web build (firebase.json, SPA fallback)
-- [x] Add/verify npm scripts for build and deploy
-- [ ] Initialize Firebase Hosting (if not already done)
+- [ ] Set up Jest/React Native Testing Library
+- [ ] Implement error boundaries and logging
+- [ ] Initialize Firebase Hosting
 - [ ] Deploy to Firebase Hosting
 - [ ] Document deployment process
-- [x] Add editable categories/roles to Settings page (complete)
-- [x] Persist categories/roles to AsyncStorage (complete)
-- [ ] Use categories/roles as dropdowns in task builder/new task form (in progress)
+- [ ] Use categories/roles as dropdowns in task builder/new task form
 - [ ] Use roles as dropdown in checklist form
 
 # Executor's Feedback or Assistance Requests
-- Editable categories and roles UI in Settings is complete and persists to AsyncStorage.
-- Next: Update the task form builder to load and use these lists as dropdowns for category and role fields, reading from storage on mount.
-- Starting implementation of editable categories and roles in the Settings page (step 1 of the new feature plan).
-- Approach: Add two sections to the Settings page for categories and roles, each with a list, input, add button, and remove option. Add a Save Settings button at the bottom. Will use AsyncStorage for persistence and provide sensible defaults if no data is present.
-- UI/UX: Will ensure the UI is simple and mobile-friendly, with validation to prevent empty or duplicate entries. Will use existing styled components for consistency.
-- Expo web build completed successfully using `npx expo export --platform web`.
-- Output directory: `dist` (contains static web build for deployment).
-- Firebase project and hosting are already set up.
-- Next: Initialize Firebase Hosting in this directory (if not already done) and configure it for the Expo web build.
-- Add Task Button: Awaiting implementation and test of add/edit/save new tasks with AsyncStorage.
+- All planned features for Firestore integration and Firebase Authentication are complete. The app now uses a cloud database for data and a real authentication system.
 
 # Lessons
 - 'expo-error-reporter' is not available on npm; use Sentry or other error reporting tools instead.
@@ -106,351 +55,35 @@ The user wants to deploy the web version of the Suite E Studios app to a Google 
 - For Firebase Hosting, ensure `firebase.json` has the correct public directory ("dist") and SPA fallback (rewrites to /index.html).
 - Use `npm run build` then `npm run deploy` for a clean deploy cycle.
 
----
-
-## Initial Architectural Decisions & Code Examples
-
-### Directory Structure Example
-
-```
-/components
-  /auth
-  /checklist
-  /settings
-/screens
-  /home
-  /settings
-/navigation
-  main-stack.tsx
-/context
-  user-context.tsx
-  checklist-context.tsx
-/types
-  user.ts
-  role.ts
-  event.ts
-  task.ts
-  checklist.ts
-  checklist-collection.ts
-/utils
-  storage.ts
-```
-
-### Example: TypeScript Interfaces
-
-```ts
-// types/user.ts
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  roleId: string;
-}
-
-// types/role.ts
-export interface Role {
-  id: string;
-  name: 'admin' | 'sound engineer' | 'event producer' | 'door person' | 'bar person';
-}
-
-// types/event.ts
-export interface Event {
-  id: string;
-  title: string;
-  start: string; // ISO date
-  end: string; // ISO date
-  roleId: string;
-  checklistIds: string[];
-}
-
-// types/task.ts
-export interface Task {
-  id: string;
-  description: string;
-  isComplete: boolean;
-  category: 'pre-event' | 'during-event' | 'post-event';
-}
-
-// types/checklist.ts
-export interface Checklist {
-  id: string;
-  name: string;
-  taskIds: string[];
-  isGlobal: boolean;
-}
-
-// types/checklist-collection.ts
-export interface ChecklistCollection {
-  id: string;
-  name: string;
-  checklistIds: string[];
-}
-```
-
-### Example: User Context with useReducer
-
-```tsx
-// context/user-context.tsx
-import React, { createContext, useReducer, useContext, Dispatch } from 'react';
-import { User } from '../types/user';
-
-interface State {
-  user: User | null;
-  isLoading: boolean;
-  hasError: boolean;
-}
-
-type Action =
-  | { type: 'LOGIN'; user: User }
-  | { type: 'LOGOUT' }
-  | { type: 'SET_LOADING'; isLoading: boolean }
-  | { type: 'SET_ERROR'; hasError: boolean };
-
-function reducer(state: State, action: Action): State {
-  if (action.type === 'LOGIN') return { ...state, user: action.user, isLoading: false, hasError: false };
-  if (action.type === 'LOGOUT') return { ...state, user: null };
-  if (action.type === 'SET_LOADING') return { ...state, isLoading: action.isLoading };
-  if (action.type === 'SET_ERROR') return { ...state, hasError: action.hasError };
-  return state;
-}
-
-const UserContext = createContext<{ state: State; dispatch: Dispatch<Action> } | undefined>(undefined);
-
-export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, { user: null, isLoading: false, hasError: false });
-  return <UserContext.Provider value={{ state, dispatch }}>{children}</UserContext.Provider>;
-}
-
-export function useUser() {
-  const context = useContext(UserContext);
-  if (!context) throw new Error('useUser must be used within a UserProvider');
-  return context;
-}
-```
-
-### Example: Local Storage Helper
-
-```ts
-// utils/storage.ts
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export async function saveSetting(key: string, value: string) {
-  try {
-    await AsyncStorage.setItem(key, value);
-  } catch (e) {
-    // handle error
-  }
-}
-
-export async function getSetting(key: string): Promise<string | null> {
-  try {
-    return await AsyncStorage.getItem(key);
-  } catch (e) {
-    return null;
-  }
-}
-```
-
-### Example: App Entry with SafeAreaProvider and Navigation
-
-```tsx
-// App.tsx
-import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer } from '@react-navigation/native';
-import MainStack from './navigation/main-stack';
-import { UserProvider } from './context/user-context';
-
-export default function App() {
-  return (
-    <SafeAreaProvider>
-      <UserProvider>
-        <NavigationContainer>
-          <MainStack />
-        </NavigationContainer>
-      </UserProvider>
-    </SafeAreaProvider>
-  );
-}
-```
-
-### Example: Settings Page (Dark Mode & UI Size)
-
-```tsx
-// screens/settings/index.tsx
-import React from 'react';
-import { View, Text, Switch } from 'react-native';
-import { useColorScheme } from 'expo-color-scheme';
-
-export function SettingsScreen() {
-  const colorScheme = useColorScheme();
-  // ...UI size toggle logic here
-  return (
-    <View>
-      <Text>Dark Mode</Text>
-      <Switch value={colorScheme === 'dark'} /* onValueChange={...} */ />
-      {/* UI size toggle here */}
-    </View>
-  );
-}
-```
-
-# Feature: Editable Categories & Roles
+# Feature: Admin User with Full Access
 
 ## Background & Motivation
-- Users need to manage the lists of "categories" and "roles" used for tasks and checklists.
-- These lists should be editable from the Settings page and persist across app restarts.
-- Task and checklist forms should use these lists as dropdowns for consistent data entry.
+The application needs an administrative user who can view, create, update, and delete all data within the app (all checklists, tasks, users, etc.). This role is essential for system oversight, content management, and user support without being restricted to a specific role's checklist.
 
 ## Key Challenges & Analysis
-- **Persistence:** Use AsyncStorage (via `getSetting`/`saveSetting`) for categories and roles.
-- **UI/UX:** Provide a simple, user-friendly way to view, add, and remove categories/roles in Settings.
-- **Integration:** Update all forms (task builder, new task, checklist form) to use these lists as dropdowns.
-- **Default Values:** Provide sensible defaults if no categories/roles are saved yet.
-- **Validation:** Prevent duplicates and empty entries.
-
-## High-level Task Breakdown (Categories & Roles)
-1. **Settings Page: Category & Role Management**
-   - [ ] Add two sections: "Task Categories" and "Task Roles".
-   - [ ] Display current lists (from AsyncStorage or defaults).
-   - [ ] Allow adding new entries (with input + add button).
-   - [ ] Allow removing entries (with a delete button/icon).
-   - [ ] Add a "Save Settings" button at the bottom to persist changes.
-   - [ ] Success: User can view, add, and remove categories/roles, and save them to storage.
-2. **Storage Integration**
-   - [ ] Use AsyncStorage keys like `task-categories` and `task-roles`.
-   - [ ] On app start, load these lists (or use defaults if not set).
-   - [ ] On save, persist the updated lists.
-3. **Task Builder & New Task Form**
-   - [ ] Replace free-text "category" and "role" fields with dropdowns/selects.
-   - [ ] Dropdown options come from the saved lists.
-   - [ ] Allow "Add New" inline if possible (optional, stretch goal).
-   - [ ] Success: User can only select from the saved categories/roles when creating/editing a task.
-4. **Checklist Form**
-   - [ ] Use the saved roles list for any role selection dropdowns.
-   - [ ] Success: Checklist role selection is consistent with the settings.
-5. **Testing & Validation**
-   - [ ] Test adding/removing/saving categories and roles.
-   - [ ] Test that forms update dynamically when lists change.
-   - [ ] Ensure no duplicates or empty entries are allowed.
-
-## Project Status Board (Additions)
-- [ ] Add editable categories/roles to Settings page
-- [ ] Persist categories/roles to AsyncStorage
-- [ ] Use categories/roles as dropdowns in task builder/new task form
-- [ ] Use roles as dropdown in checklist form
-
-## Success Criteria
-- Settings page allows full management of categories and roles.
-- All relevant forms use these lists as dropdowns.
-- Changes persist and are reflected throughout the app.
-
-# Feature: Top Navigation Bar Updates
-
-## Background & Motivation
-- The user wants to improve the branding and navigation of the app.
-- This includes setting a custom favicon for the web app, adding the company logo to the header for branding and easy navigation to the home screen.
-- A previously reported issue with a `back-icon.png` was investigated. The file does not exist in the project and is not referenced, so no action is needed on that front. The back arrow is currently a white chevron, which is the desired behavior.
-
-## Key Challenges & Analysis
-- **Favicon:** Ensuring the favicon is correctly configured in `app.json` for the Expo web build.
-- **Header Logo:** Correctly implementing a custom `headerLeft` component in React Navigation. This component needs to handle navigation and display the logo image correctly, replacing the default back button behavior with a consistent "navigate to home" action.
-
-## High-level Task Breakdown (Navigation Updates)
-1. **Set Favicon for Web**
-   - [ ] Update `app.json` to point the `web.favicon` property to `./assets/images/Suite_E_Logo_small.png`. Note: The path for `app.json` assets is usually relative to the project root, and `images` seems to be inside `assets`. I'll need to verify this structure.
-   - [ ] Success: After rebuilding for web, the new favicon is visible in the browser tab.
-2. **Add Logo to Header Left**
-   - [ ] Modify `app/navigation/main-stack.tsx`.
-   - [ ] In the `Stack.Navigator`'s `screenOptions`, add a `headerLeft` property.
-   - [ ] The property will be a function that returns a `TouchableOpacity` component wrapping an `Image` component.
-   - [ ] The `Image` source will be `require('../../assets/images/Suite_E_Logo_small.png')`. The path needs to be relative from `main-stack.tsx`.
-   - [ ] The `onPress` handler of the `TouchableOpacity` will navigate the user to the 'Home' screen.
-   - [ ] Success: The logo appears on the top left of the navigation bar on all screens, and clicking it navigates to the Home screen.
-
-## Project Status Board (Additions)
-- [ ] Configure favicon for web build
-- [ ] Add clickable logo to header that navigates home
-
-# Feature: UI Size Toggle Implementation
-
-## Background & Motivation
-- Users need the ability to adjust text size across the app for better readability
-- Current implementation has hardcoded font sizes in styled components
-- Need to implement a toggle between "Comfy" (default) and "Large" (20% larger) sizes
-
-## Key Challenges & Analysis
-- **Theme Integration:** Need to extend the theme context to include UI size preference
-- **Font Size Scaling:** All text components need to respect the UI size setting
-- **Persistence:** UI size preference should persist across app restarts
-- **Accessibility:** Ensure the implementation follows accessibility best practices
-- **Component Updates:** Need to modify styled components to use dynamic font sizes
+- **Secure Role Check:** The primary challenge is securely identifying an admin user within Firestore Security Rules. This requires a separate database read within the rules to check the user's role, which must be done efficiently.
+- **Admin UI/UX:** The user experience for an admin must be different from a standard user. Instead of seeing a single checklist, an admin needs a way to view and navigate all checklists and potentially manage other collections. We will start by providing a view of all checklists on the home screen for the admin.
+- **Application Logic:** The `HomeScreen` and data-fetching logic will need to be refactored to handle two distinct cases: a standard user logging in versus an admin logging in.
 
 ## High-level Task Breakdown
-1. **Theme Context Extension**
-   - [ ] Add UI size type and context value to theme context
-   - [ ] Add UI size toggle function to context
-   - [ ] Implement AsyncStorage persistence for UI size preference
-   - Success: Theme context provides and persists UI size preference
 
-2. **Styled Components Updates**
-   - [ ] Create a font size scaling utility function
-   - [ ] Update all text-based styled components to use dynamic font sizes
-   - [ ] Test that all components respond to size changes
-   - Success: All text components scale properly with UI size changes
+1.  **Update Data Model & Seed Admin User:**
+    - [x] Add a new `role` object to `global.checklists.json` with an `id` of `admin` and a `name` of "Admin".
+    - [x] Add a new user to the `users` array in `global.checklists.json` with an email like `admin@suitee.com` and the `roleId` of `admin`.
+    - [x] Success Criteria: After running the `npm run db:seed` script, the new "Admin" role and the admin user are successfully created in the `roles` and `users` collections in Firestore, and the user is created in Firebase Authentication.
 
-3. **Settings UI Implementation**
-   - [ ] Add UI size toggle section to settings screen
-   - [ ] Implement toggle between "Comfy" and "Large" sizes
-   - [ ] Add visual feedback for current selection
-   - Success: Users can toggle between size options with immediate visual feedback
+2.  **Implement Admin-Aware Security Rules:**
+    - [x] Update the `firestore.rules` to grant universal read/write access to any user identified as an admin.
+    - [x] This will involve a helper function within the rules that checks the requesting user's `roleId` from their document in the `/users` collection.
+    - [x] Non-admin authenticated users will retain their existing permissions (read-only on checklists/tasks, but only able to read their own user profile).
+    - [x] Success Criteria: When deployed, the new security rules allow a logged-in admin to perform any action, while restricting other users appropriately.
 
-4. **Testing & Validation**
-   - [ ] Test persistence across app restarts
-   - [ ] Verify all text components scale correctly
-   - [ ] Check accessibility features work with both sizes
-   - Success: Feature works reliably and maintains accessibility
-
-## Implementation Details
-
-### Theme Context Updates
-```typescript
-type UISize = "comfy" | "large";
-
-interface ThemeContextValue {
-  // ... existing theme context values ...
-  uiSize: UISize;
-  setUISize: (size: UISize) => void;
-}
-```
-
-### Font Size Scaling Function
-```typescript
-const getScaledFontSize = (baseSize: number, uiSize: UISize) => {
-  return uiSize === "large" ? baseSize * 1.2 : baseSize;
-};
-```
-
-### Styled Component Example
-```typescript
-export const Label = styled.Text<{
-  theme: DefaultTheme;
-  fontSize?: number;
-}>`
-  font-size: ${({ fontSize, theme }) => 
-    getScaledFontSize(fontSize || 16, theme.uiSize)}px;
-  // ... other styles
-`;
-```
-
-## Project Status Board Updates
-- [ ] Add UI size type and context value to theme context
-- [ ] Add UI size toggle function to context
-- [ ] Implement AsyncStorage persistence for UI size preference
-- [ ] Create font size scaling utility function
-- [ ] Update text-based styled components
-- [ ] Add UI size toggle to settings screen
-- [ ] Test persistence and scaling
-- [ ] Validate accessibility
-
-// ... existing code ... 
+3.  **Refactor Home Screen for Admin View:**
+    - [x] Modify the `HomeScreen`'s login logic. After a user logs in, check if their fetched profile has the `roleId` of `admin`.
+    - [x] **If the user is an admin:**
+        - [x] Fetch the entire `checklists` collection from Firestore.
+        - [x] Render a list of all available checklists on the screen.
+        - [x] Allow the admin to tap on any checklist to navigate to its detailed view (we will likely need to adjust the `ChecklistContext` or navigation flow to handle selecting and displaying a specific checklist from this list).
+    - [x] **If the user is not an admin:**
+        - [x] The flow remains the same as it is now: fetch the single checklist associated with their role.
+    - [x] Success Criteria: An admin user logs in and sees a list of all checklists. They can select one and view its tasks. A standard user logs in and sees only their assigned checklist.

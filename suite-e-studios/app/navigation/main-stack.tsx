@@ -26,13 +26,6 @@ export type MainStackParamList = {
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
-function withUserMenu(Component: React.ComponentType<any>) {
-  return function Wrapper(props: any) {
-    const { state } = useUser();
-    return <Component {...props} userMenu={state.user ? <UserMenu /> : null} />;
-  };
-}
-
 export function MainStack() {
   const { state } = useUser();
 
@@ -42,7 +35,6 @@ export function MainStack() {
       screenOptions={({ navigation }) => ({
         headerShown: true,
         headerRight: () => (state.user ? <UserMenu /> : null),
-        // headerTintColor: "#FFFFFF",
         headerLeft: () => (
           <TouchableOpacity onPress={() => navigation.navigate("Home")}>
             <Image

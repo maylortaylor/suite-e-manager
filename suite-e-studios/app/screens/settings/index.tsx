@@ -19,12 +19,18 @@ import {
 import React, { useEffect, useState } from "react";
 import { getSetting, saveSetting } from "../../../utils/storage";
 
+import { AppLayout } from "@/app/components/ui/AppLayout";
 import { Button } from "@/app/components/ui/Button";
 import { Divider } from "@/app/components/ui/Divider";
+import { MainStackParamList } from "../../navigation/main-stack";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { UserMenu } from "@/app/components/ui/UserMenu";
+import { auth } from "../../firebaseConfig";
+import { signOut } from "firebase/auth";
 import { toast } from "../../../utils/toast";
 import { useTheme } from "styled-components/native";
 import { useThemeMode } from "../../context/theme-context";
+import { useUser } from "../../context/user-context";
 
 const CATEGORY_KEY = "task-categories";
 const ROLE_KEY = "task-roles";
@@ -37,9 +43,12 @@ const DEFAULT_ROLES = [
   "bar-person",
 ];
 
-export function SettingsScreen() {
+type Props = NativeStackScreenProps<MainStackParamList, "Settings">;
+
+export function SettingsScreen({ navigation }: Props) {
   const { mode, setMode, uiSize, setUISize } = useThemeMode();
   const theme = useTheme();
+  const { dispatch: userDispatch } = useUser();
 
   // Categories and roles state
   const [categories, setCategories] = useState<string[]>(DEFAULT_CATEGORIES);
@@ -113,121 +122,158 @@ export function SettingsScreen() {
     setSaving(false);
   }
 
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+      userDispatch({ type: "LOGOUT" });
+      toast.success("You have been logged out.");
+    } catch (error) {
+      toast.error("Failed to log out.");
+      console.error("Logout Error:", error);
+    }
+  }
+
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 1000 }}>
-      <Container>
-        <SectionTitle>User Settings</SectionTitle>
-        <Row>
-          <Label>Dark Mode</Label>
-          <Switch
-            value={mode === "dark"}
-            onValueChange={(val) => setMode(val ? "dark" : "light")}
-            trackColor={{ false: theme.colors.input, true: theme.colors.input }}
-          />
-        </Row>
-        <Row>
-          <Label>UI Size: {uiSize === "large" ? "Large" : "Comfy"}</Label>
-          <Switch
-            value={uiSize === "large"}
-            onValueChange={handleUiSizeToggle}
-            trackColor={{ false: theme.colors.input, true: theme.colors.input }}
-          />
-        </Row>
+    <AppLayout navigation={navigation}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 1000 }}>
+        <Container>
+          <SectionTitle>User Settings</SectionTitle>
+          <Row>
+            <Label>Dark Mode</Label>
+            <Switch
+              value={mode === "dark"}
+              onValueChange={(val) => setMode(val ? "dark" : "light")}
+              trackColor={{
+                false: theme.colors.input,
+                true: theme.colors.input,
+              }}
+            />
+          </Row>
+          <Row>
+            <Label>UI Size: {uiSize === "large" ? "Large" : "Comfy"}</Label>
+            <Switch
+              value={uiSize === "large"}
+              onValueChange={handleUiSizeToggle}
+              trackColor={{
+                false: theme.colors.input,
+                true: theme.colors.input,
+              }}
+            />
+          </Row>
 
-        {/* Categories Section */}
-        <SectionTitle style={{ marginTop: 32 }}>Task Categories</SectionTitle>
-        <Row>
-          <Input
-            value={newCategory}
-            onChangeText={setNewCategory}
-            placeholder="Add new category"
-            theme={theme}
-            style={{ flex: 1 }}
+          {/* Categories Section */}
+          <SectionTitle style={{ marginTop: 32 }}>Task Categories</SectionTitle>
+          <Row>
+            <Input
+              value={newCategory}
+              onChangeText={setNewCategory}
+              placeholder="Add new category"
+              theme={theme}
+              style={{ flex: 1 }}
+            />
+            <Button
+              variant="accent"
+              size="small"
+              onPress={addCategory}
+              style={{ marginLeft: 8 }}
+            >
+              Add
+            </Button>
+          </Row>
+          <ItemBox theme={theme} style={{ maxHeight: maxListHeight }}>
+            <FlatList
+              data={categories}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <Row>
+                  <Label style={{ flex: 1 }} fontSize={24}>
+                    {item}
+                  </Label>
+                  <Button
+                    variant="highlight"
+                    size="small"
+                    onPress={() => removeCategory(item)}
+                  >
+                    Remove
+                  </Button>
+                </Row>
+              )}
+              scrollEnabled={true}
+            />
+          </ItemBox>
+
+          {/* Roles Section */}
+          <SectionTitle style={{ marginTop: 32 }}>Task Roles</SectionTitle>
+          <Row>
+            <Input
+              value={newRole}
+              onChangeText={setNewRole}
+              placeholder="Add new role"
+              theme={theme}
+              style={{ flex: 1 }}
+            />
+            <Button
+              variant="accent"
+              size="small"
+              onPress={addRole}
+              style={{ marginLeft: 8 }}
+            >
+              Add
+            </Button>
+          </Row>
+          <ItemBox theme={theme} style={{ maxHeight: maxListHeight }}>
+            <FlatList
+              data={roles}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <Row>
+                  <Label style={{ flex: 1 }} fontSize={24}>
+                    {item}
+                  </Label>
+                  <Button
+                    variant="highlight"
+                    size="small"
+                    onPress={() => removeRole(item)}
+                  >
+                    Remove
+                  </Button>
+                </Row>
+              )}
+              scrollEnabled={true}
+            />
+          </ItemBox>
+
+          {/* Save Settings Button */}
+          <Button
+            variant="primary"
+            size="large"
+            onPress={handleSaveSettings}
+            disabled={saving}
+            fullWidth
+            style={{ marginTop: 32 }}
+          >
+            {saving ? "Saving..." : "Save Settings"}
+          </Button>
+
+          {/* Logout Button */}
+          <Divider
+            orientation="horizontal"
+            thickness={1}
+            length={8}
+            marginVertical={40}
+            marginHorizontal={40}
+            color={theme.colors.divider}
           />
           <Button
-            variant="accent"
-            size="small"
-            onPress={addCategory}
-            style={{ marginLeft: 8 }}
+            variant="highlight"
+            size="large"
+            onPress={handleLogout}
+            fullWidth
           >
-            Add
+            Logout
           </Button>
-        </Row>
-        <ItemBox theme={theme} style={{ maxHeight: maxListHeight }}>
-          <FlatList
-            data={categories}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <Row>
-                <Label style={{ flex: 1 }} fontSize={24}>
-                  {item}
-                </Label>
-                <Button
-                  variant="highlight"
-                  size="small"
-                  onPress={() => removeCategory(item)}
-                >
-                  Remove
-                </Button>
-              </Row>
-            )}
-            scrollEnabled={true}
-          />
-        </ItemBox>
-
-        {/* Roles Section */}
-        <SectionTitle style={{ marginTop: 32 }}>Task Roles</SectionTitle>
-        <Row>
-          <Input
-            value={newRole}
-            onChangeText={setNewRole}
-            placeholder="Add new role"
-            theme={theme}
-            style={{ flex: 1 }}
-          />
-          <Button
-            variant="accent"
-            size="small"
-            onPress={addRole}
-            style={{ marginLeft: 8 }}
-          >
-            Add
-          </Button>
-        </Row>
-        <ItemBox theme={theme} style={{ maxHeight: maxListHeight }}>
-          <FlatList
-            data={roles}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <Row>
-                <Label style={{ flex: 1 }} fontSize={24}>
-                  {item}
-                </Label>
-                <Button
-                  variant="highlight"
-                  size="small"
-                  onPress={() => removeRole(item)}
-                >
-                  Remove
-                </Button>
-              </Row>
-            )}
-            scrollEnabled={true}
-          />
-        </ItemBox>
-
-        {/* Save Settings Button */}
-        <Button
-          variant="primary"
-          size="large"
-          onPress={handleSaveSettings}
-          disabled={saving}
-          fullWidth
-          style={{ marginTop: 32 }}
-        >
-          {saving ? "Saving..." : "Save Settings"}
-        </Button>
-      </Container>
-    </ScrollView>
+        </Container>
+      </ScrollView>
+    </AppLayout>
   );
 }

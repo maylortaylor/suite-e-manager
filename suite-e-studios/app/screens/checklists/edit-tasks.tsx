@@ -1,6 +1,7 @@
 /** @format */
 
 import * as Clipboard from "expo-clipboard";
+import * as firestore from "../../services/firestore";
 
 import { Button, ScrollView, View } from "react-native";
 import {
@@ -10,8 +11,9 @@ import {
   ItemLabel,
   Label,
 } from "@/app/components/ui/styled.components";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import type { Task, TaskCategory, TaskRole } from "../../../types/task";
+import { doc, writeBatch } from "firebase/firestore";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Collapsible } from "../../components/ui/Collapsible";
@@ -19,8 +21,8 @@ import { Divider } from "@/app/components/ui/Divider";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { TouchableOpacity } from "react-native";
+import { db } from "../../firebaseConfig"; // Import db for batch writes
 import { toast } from "../../../utils/toast";
-import { useChecklist } from "../../context/checklist-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 
@@ -52,10 +54,29 @@ function generateTaskId() {
 
 export function EditTasksScreen() {
   const theme = useTheme();
-  const { state, dispatch } = useChecklist();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [categories, setCategories] =
     useState<TaskCategory[]>(DEFAULT_CATEGORIES);
   const [roles, setRoles] = useState<TaskRole[]>(DEFAULT_ROLES);
+
+  // Fetch all tasks from Firestore on mount
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedTasks = await firestore.getCollection<Task>("tasks");
+        setTasks(fetchedTasks);
+        setError(null);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTasks();
+  }, []);
 
   // Load categories and roles from AsyncStorage
   useFocusEffect(
@@ -66,28 +87,14 @@ export function EditTasksScreen() {
         if (cat && isActive) {
           try {
             const parsed = JSON.parse(cat);
-            // Validate that all categories are valid TaskCategory
-            if (
-              parsed.every((c: string): c is TaskCategory =>
-                DEFAULT_CATEGORIES.includes(c as TaskCategory)
-              )
-            ) {
-              setCategories(parsed);
-            }
+            setCategories(parsed);
           } catch {}
         }
         const role = await AsyncStorage.getItem(ROLE_KEY);
         if (role && isActive) {
           try {
             const parsed = JSON.parse(role);
-            // Validate that all roles are valid TaskRole
-            if (
-              parsed.every((r: string): r is TaskRole =>
-                DEFAULT_ROLES.includes(r as TaskRole)
-              )
-            ) {
-              setRoles(parsed);
-            }
+            setRoles(parsed);
           } catch {}
         }
       }
@@ -106,38 +113,34 @@ export function EditTasksScreen() {
       role: roles[0] || "sound-engineer",
       isComplete: false,
     };
-    dispatch({ type: "ADD_TASK", task: newTask });
+    setTasks((prevTasks) => [...prevTasks, newTask]);
   }
 
   function handleUpdateTask(index: number, key: string, value: string) {
-    const updatedTask = {
-      ...state.tasks[index],
-      [key]: value,
-    };
-    dispatch({ type: "UPDATE_TASK", task: updatedTask as Task });
+    const updatedTasks = [...tasks];
+    updatedTasks[index] = { ...updatedTasks[index], [key]: value };
+    setTasks(updatedTasks);
   }
 
   async function handleSave() {
+    setIsLoading(true);
     try {
-      dispatch({ type: "SET_LOADING", isLoading: true });
-      dispatch({
-        type: "SAVE_ALL",
-        data: {
-          tasks: state.tasks,
-          taskLists: state.taskLists,
-          checklists: state.checklists,
-        },
+      const batch = writeBatch(db);
+      tasks.forEach((task) => {
+        const taskRef = doc(db, "tasks", task.id);
+        batch.set(taskRef, task); // Use set with merge:true to handle both new and existing
       });
-      toast.success("Tasks saved successfully");
+      await batch.commit();
+      toast.success("Tasks saved successfully!");
     } catch (e) {
-      toast.error("Failed to save tasks");
-      dispatch({ type: "SET_ERROR", error: e as Error });
+      toast.error("Failed to save tasks.");
+      setError(e as Error);
     } finally {
-      dispatch({ type: "SET_LOADING", isLoading: false });
+      setIsLoading(false);
     }
   }
 
-  if (state.isLoading) {
+  if (isLoading) {
     return (
       <Container>
         <Label>Loading tasks...</Label>
@@ -145,20 +148,19 @@ export function EditTasksScreen() {
     );
   }
 
-  if (state.error) {
+  if (error) {
     return (
       <Container>
-        <Label>Error: {state.error.message}</Label>
-        <Button title="Retry" onPress={handleSave} />
+        <Label>Error: {error.message}</Label>
       </Container>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 800 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 850 }}>
       <Label>Tasks</Label>
       <Container>
-        {state.tasks.map((t: Task, i: number) => (
+        {tasks.map((t: Task, i: number) => (
           <Collapsible key={t.id} title={t.description || "(New Task)"}>
             <View
               style={{
@@ -220,9 +222,9 @@ export function EditTasksScreen() {
         ))}
         <View style={{ marginTop: 24 }} />
         <Button
-          title={state.isLoading ? "Adding..." : "+ ADD TASK"}
+          title={isLoading ? "Adding..." : "+ ADD TASK"}
           onPress={handleAddTask}
-          disabled={state.isLoading}
+          disabled={isLoading}
         />
         <Divider
           orientation="horizontal"
@@ -233,9 +235,9 @@ export function EditTasksScreen() {
           color={theme.colors.divider}
         />
         <Button
-          title={state.isLoading ? "Saving..." : "Save All"}
+          title={isLoading ? "Saving..." : "Save All"}
           onPress={handleSave}
-          disabled={state.isLoading}
+          disabled={isLoading}
         />
       </Container>
     </ScrollView>

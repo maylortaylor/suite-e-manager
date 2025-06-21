@@ -1,5 +1,7 @@
 /** @format */
 
+import * as firestore from "../../services/firestore";
+
 import { Button, ScrollView, View } from "react-native";
 import {
   Chip,
@@ -12,16 +14,17 @@ import {
   ItemLabel,
   Label,
 } from "@/app/components/ui/styled.components";
+import React, { useEffect, useState } from "react";
+import { doc, writeBatch } from "firebase/firestore";
 
 import { Collapsible } from "../../components/ui/Collapsible";
 import { Divider } from "@/app/components/ui/Divider";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
-import React from "react";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import type { Task } from "../../../types/task";
 import type { TaskList } from "../../../types/task-list";
+import { db } from "../../firebaseConfig";
 import { toast } from "../../../utils/toast";
-import { useChecklist } from "../../context/checklist-context";
 import { useTheme } from "styled-components/native";
 
 function generateTaskListId() {
@@ -37,7 +40,31 @@ function generateTaskListId() {
 
 export function EditTaskListsScreen() {
   const theme = useTheme();
-  const { state, dispatch } = useChecklist();
+  const [taskLists, setTaskLists] = useState<TaskList[]>([]);
+  const [allTasks, setAllTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Fetch all task lists and tasks from Firestore on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [fetchedTaskLists, fetchedTasks] = await Promise.all([
+          firestore.getCollection<TaskList>("taskLists"),
+          firestore.getCollection<Task>("tasks"),
+        ]);
+        setTaskLists(fetchedTaskLists);
+        setAllTasks(fetchedTasks);
+        setError(null);
+      } catch (e) {
+        setError(e as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   function handleAddTaskList() {
     const newTaskList: TaskList = {
@@ -45,7 +72,7 @@ export function EditTaskListsScreen() {
       name: "",
       taskIds: [],
     };
-    dispatch({ type: "ADD_TASK_LIST", taskList: newTaskList });
+    setTaskLists((prev) => [...prev, newTaskList]);
   }
 
   function handleUpdateTaskList(
@@ -53,37 +80,30 @@ export function EditTaskListsScreen() {
     key: string,
     value: string | string[]
   ) {
-    const updatedTaskList = {
-      ...state.taskLists[index],
-      [key]: value,
-    };
-    dispatch({
-      type: "UPDATE_TASK_LIST",
-      taskList: updatedTaskList as TaskList,
-    });
+    const updatedTaskLists = [...taskLists];
+    updatedTaskLists[index] = { ...updatedTaskLists[index], [key]: value };
+    setTaskLists(updatedTaskLists);
   }
 
   async function handleSave() {
+    setIsLoading(true);
     try {
-      dispatch({ type: "SET_LOADING", isLoading: true });
-      dispatch({
-        type: "SAVE_ALL",
-        data: {
-          tasks: state.tasks,
-          taskLists: state.taskLists,
-          checklists: state.checklists,
-        },
+      const batch = writeBatch(db);
+      taskLists.forEach((taskList) => {
+        const taskListRef = doc(db, "taskLists", taskList.id);
+        batch.set(taskListRef, taskList);
       });
-      toast.success("Task lists saved successfully");
+      await batch.commit();
+      toast.success("Task lists saved successfully!");
     } catch (e) {
-      toast.error("Failed to save task lists");
-      dispatch({ type: "SET_ERROR", error: e as Error });
+      toast.error("Failed to save task lists.");
+      setError(e as Error);
     } finally {
-      dispatch({ type: "SET_LOADING", isLoading: false });
+      setIsLoading(false);
     }
   }
 
-  if (state.isLoading) {
+  if (isLoading) {
     return (
       <Container>
         <Label>Loading task lists...</Label>
@@ -91,20 +111,19 @@ export function EditTaskListsScreen() {
     );
   }
 
-  if (state.error) {
+  if (error) {
     return (
       <Container>
-        <Label>Error: {state.error.message}</Label>
-        <Button title="Retry" onPress={handleSave} />
+        <Label>Error: {error.message}</Label>
       </Container>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 600 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 850 }}>
       <Label>Task Lists</Label>
       <Container>
-        {state.taskLists.map((tl: TaskList, i: number) => (
+        {taskLists.map((tl: TaskList, i: number) => (
           <Collapsible key={tl.id} title={tl.name || "(New Task List)"}>
             <ItemBox>
               <ItemLabel>Name</ItemLabel>
@@ -116,7 +135,7 @@ export function EditTaskListsScreen() {
               <View style={{ position: "relative", marginBottom: 16 }}>
                 <ChipRow>
                   {tl.taskIds.map((id: string) => {
-                    const t = state.tasks.find((t: Task) => t.id === id);
+                    const t = allTasks.find((task) => task.id === id);
                     return (
                       <Chip key={id} theme={theme}>
                         <ChipLabel theme={theme}>
@@ -145,14 +164,14 @@ export function EditTaskListsScreen() {
                 <StyledPicker
                   value={""}
                   onValueChange={(taskId: string) => {
-                    if (taskId) {
+                    if (taskId && !tl.taskIds.includes(taskId)) {
                       handleUpdateTaskList(i, "taskIds", [
                         ...tl.taskIds,
                         taskId,
                       ]);
                     }
                   }}
-                  items={state.tasks
+                  items={allTasks
                     .filter((t: Task) => !tl.taskIds.includes(t.id))
                     .map((t: Task) => ({
                       label: t.description,
@@ -165,9 +184,9 @@ export function EditTaskListsScreen() {
           </Collapsible>
         ))}
         <Button
-          title={state.isLoading ? "Adding..." : "+ ADD TASK LIST"}
+          title={isLoading ? "Adding..." : "+ ADD TASK LIST"}
           onPress={handleAddTaskList}
-          disabled={state.isLoading}
+          disabled={isLoading}
         />
         <Divider
           orientation="horizontal"
@@ -178,9 +197,9 @@ export function EditTaskListsScreen() {
           color={theme.colors.divider}
         />
         <Button
-          title={state.isLoading ? "Saving..." : "Save All"}
+          title={isLoading ? "Saving..." : "Save All"}
           onPress={handleSave}
-          disabled={state.isLoading}
+          disabled={isLoading}
         />
       </Container>
     </ScrollView>
