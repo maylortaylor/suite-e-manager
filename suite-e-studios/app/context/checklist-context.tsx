@@ -3,9 +3,12 @@
 import * as React from "react";
 import * as firestore from "../services/firestore"; // Import our new service
 
+import { doc, onSnapshot } from "firebase/firestore";
+
 import type { Checklist } from "../../types/checklist";
 import type { Task } from "../../types/task";
 import type { TaskList } from "../../types/task-list";
+import { db } from "../firebaseConfig";
 import { toast } from "../../utils/toast";
 
 // The new state will hold a single, fully populated checklist
@@ -77,7 +80,7 @@ const ChecklistContext = React.createContext<
   | {
       state: State;
       dispatch: React.Dispatch<Action>;
-      fetchFullChecklist: (checklistId: string) => Promise<void>;
+      fetchFullChecklist: (checklistId: string) => void;
       clearActiveChecklist: () => void;
     }
   | undefined
@@ -91,89 +94,103 @@ export function ChecklistProvider({ children }: { children: React.ReactNode }) {
     error: null,
   });
 
+  // Store the unsubscribe function for the real-time listener
+  const unsubscribeRef = React.useRef<(() => void) | null>(null);
+
   const clearActiveChecklist = () => {
+    // If there's an active listener, unsubscribe from it
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
     dispatch({ type: "CLEAR_ACTIVE_CHECKLIST" });
   };
 
-  const fetchFullChecklist = async (checklistId: string) => {
-    dispatch({ type: "SET_LOADING", isLoading: true });
-    console.log(`FETCH_START: Fetching full checklist for ID: ${checklistId}`);
-    try {
-      // 1. Fetch the main checklist document
-      const checklist = await firestore.getDocument<Checklist>(
-        "checklists",
-        checklistId
-      );
-      console.log("FETCH_STEP_1: Main checklist doc fetched:", checklist);
-
-      if (!checklist) {
-        throw new Error(`Checklist with ID ${checklistId} not found!`);
-      }
-
-      // 2. Fetch all associated task lists
-      let taskLists: TaskList[] = [];
-      if (checklist.taskListIds && checklist.taskListIds.length > 0) {
-        console.log(
-          `FETCH_STEP_2: Fetching ${checklist.taskListIds.length} task lists...`
-        );
-        const taskListPromises = checklist.taskListIds.map((id) =>
-          firestore.getDocument<TaskList>("taskLists", id)
-        );
-        taskLists = (await Promise.all(taskListPromises)).filter(
-          (tl): tl is TaskList => tl !== null
-        );
-        console.log("FETCH_STEP_2_COMPLETE: Task lists fetched:", taskLists);
-      } else {
-        console.log("FETCH_STEP_2_SKIP: No taskListIds found on checklist.");
-      }
-
-      // 3. Gather all task IDs from the task lists and the checklist itself
-      const taskListTaskIds = taskLists.flatMap((tl) => tl.taskIds || []);
-      const directTaskIds = checklist.taskIds || [];
-      const allTaskIds = Array.from(
-        new Set([...directTaskIds, ...taskListTaskIds])
-      );
-      console.log(
-        `FETCH_STEP_3: Combined all task IDs. Total unique tasks: ${allTaskIds.length}`,
-        {
-          directTaskIds,
-          taskListTaskIds,
-        }
-      );
-
-      // 4. Fetch all tasks
-      let tasks: Task[] = [];
-      if (allTaskIds.length > 0) {
-        console.log(`FETCH_STEP_4: Fetching ${allTaskIds.length} tasks...`);
-        const taskPromises = allTaskIds.map((id) =>
-          firestore.getDocument<Task>("tasks", id)
-        );
-        tasks = (await Promise.all(taskPromises)).filter(
-          (t): t is Task => t !== null
-        );
-        console.log("FETCH_STEP_4_COMPLETE: Tasks fetched:", tasks);
-      } else {
-        console.log("FETCH_STEP_4_SKIP: No task IDs to fetch.");
-      }
-
-      // 5. Set the fully populated checklist in the state
-      const finalChecklist = {
-        ...checklist,
-        taskLists,
-        tasks,
-      };
-      console.log(
-        "FETCH_SUCCESS: Dispatching SET_ACTIVE_CHECKLIST with final data:",
-        finalChecklist
-      );
-      dispatch({
-        type: "SET_ACTIVE_CHECKLIST",
-        checklist: finalChecklist,
-      });
-    } catch (e) {
-      console.error("FETCH_ERROR: An error occurred in fetchFullChecklist.", e);
-      dispatch({ type: "SET_ERROR", error: e as Error });
+  const fetchFullChecklist = (checklistId: string) => {
+    // Unsubscribe from any previous listener
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
     }
+
+    const checklistRef = doc(db, "checklists", checklistId);
+
+    // Set up the real-time listener
+    const unsubscribe = onSnapshot(
+      checklistRef,
+      { includeMetadataChanges: true }, // Important: This gets us cache status
+      async (snapshot) => {
+        const source = snapshot.metadata.fromCache ? "local cache" : "server";
+        console.log(`Data came from ${source}`);
+
+        // Only show loading indicator if data is coming from the server
+        dispatch({
+          type: "SET_LOADING",
+          isLoading: !snapshot.metadata.fromCache,
+        });
+
+        if (!snapshot.exists()) {
+          dispatch({
+            type: "SET_ERROR",
+            error: new Error(`Checklist with ID ${checklistId} not found!`),
+          });
+          return;
+        }
+
+        try {
+          const checklist = {
+            id: snapshot.id,
+            ...snapshot.data(),
+          } as Checklist;
+
+          // Fetch related data (task lists and tasks)
+          let taskLists: TaskList[] = [];
+          if (checklist.taskListIds && checklist.taskListIds.length > 0) {
+            const taskListPromises = checklist.taskListIds.map((id) =>
+              firestore.getDocument<TaskList>("taskLists", id)
+            );
+            taskLists = (await Promise.all(taskListPromises)).filter(
+              (tl): tl is TaskList => tl !== null
+            );
+          }
+
+          const taskListTaskIds = taskLists.flatMap((tl) => tl.taskIds || []);
+          const directTaskIds = checklist.taskIds || [];
+          const allTaskIds = Array.from(
+            new Set([...directTaskIds, ...taskListTaskIds])
+          );
+
+          let tasks: Task[] = [];
+          if (allTaskIds.length > 0) {
+            const taskPromises = allTaskIds.map((id) =>
+              firestore.getDocument<Task>("tasks", id)
+            );
+            tasks = (await Promise.all(taskPromises)).filter(
+              (t): t is Task => t !== null
+            );
+          }
+
+          const finalChecklist = {
+            ...checklist,
+            taskLists,
+            tasks,
+          };
+
+          dispatch({
+            type: "SET_ACTIVE_CHECKLIST",
+            checklist: finalChecklist,
+          });
+        } catch (e) {
+          dispatch({ type: "SET_ERROR", error: e as Error });
+        }
+      },
+      (error) => {
+        // This is the error callback for onSnapshot
+        dispatch({ type: "SET_ERROR", error });
+      }
+    );
+
+    // Store the new unsubscribe function
+    unsubscribeRef.current = unsubscribe;
   };
 
   return (

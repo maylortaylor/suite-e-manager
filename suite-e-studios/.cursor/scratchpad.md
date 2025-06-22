@@ -114,3 +114,55 @@ The user has reported that the text for the navigation items in the side drawer 
     -   **Task:** Manually test the application.
     -   **Action:** Launch the app, open the drawer, and toggle between light and dark mode from the settings page.
     -   **Success Criteria:** The drawer text is clearly legible against the background in both themes.
+
+# Feature: Improve Drawer Button Appearance
+
+## Background & Motivation
+The user wants the items in the navigation drawer to look more like distinct, pressable buttons rather than simple text labels. This will improve the user interface by making navigation options clearer and more interactive.
+
+## Key Challenges & Analysis
+- **Component Styling:** The default `DrawerItem` from `@react-navigation/drawer` has limited styling options. The best approach is to create a new, custom component that can be fully styled.
+- **Theme Consistency:** The new button component must respect the application's light and dark themes, using colors from the theme context for its background and text.
+
+## High-level Task Breakdown
+
+1.  **Create Styled Components for Button:**
+    -   **Task:** Modify `app/components/ui/styled.components.ts`.
+    -   **Action:** Added `DrawerButton` and `DrawerButtonText` styled-components to define the appearance of the new drawer items. This includes properties like background color, padding, border-radius, and font styles that are all derived from the current theme.
+    -   **Success Criteria:** The new styled components are defined and available for use.
+
+2.  **Implement Custom Drawer Button Component:**
+    -   **Task:** Modify `app/components/ui/CustomDrawerContent.tsx`.
+    -   **Action:** Created a new reusable component, `CustomDrawerItem`, which uses the `DrawerButton` and `DrawerButtonText` components.
+    -   **Success Criteria:** The `CustomDrawerItem` component correctly renders a button with the desired styling.
+
+3.  **Replace Default Drawer Items:**
+    -   **Task:** Modify `app/components/ui/CustomDrawerContent.tsx`.
+    -   **Action:** Replaced all instances of the default `DrawerItem` with the new `CustomDrawerItem` component throughout the drawer's content, including static links, the dynamic checklist list, and the buttons in the bottom section.
+    -   **Success Criteria:** All items in the drawer now appear as styled, pressable buttons. The app functions as before, with navigation and actions working correctly.
+
+# Feature: Theme-Aware Drawer Styling
+
+## Background & Motivation
+The user wants to improve the overall styling of the navigation drawer. The current implementation does not fully respect the application's theme, particularly the background color. This feature will ensure the entire drawer, including its background and dividers, dynamically adapts to the selected light or dark theme, improving visual consistency and user experience.
+
+## Key Challenges & Analysis
+- **Navigator vs. Content Styling:** The drawer's final appearance is controlled by both the `Drawer.Navigator` configuration (in `drawer-navigator.tsx`) and the custom content component (`CustomDrawerContent.tsx`). The background color needs to be set at the navigator level to ensure the entire drawer area is covered.
+- **Theme Propagation:** The theme object must be accessible within `drawer-navigator.tsx` to apply styles dynamically in the `screenOptions`.
+
+## High-level Task Breakdown
+
+1.  **Apply Theme to Drawer Navigator:**
+    -   **Task:** Modify `app/navigation/drawer-navigator.tsx`.
+    -   **Action:** The `Drawer.Navigator` component's `screenOptions` has been updated to a function that receives the `navigation` prop. We have implemented the `useTheme` hook to access the current theme and apply the `theme.colors.background` to the `drawerStyle` property. This makes the entire drawer background responsive to theme changes.
+    -   **Success Criteria:** The main background of the drawer changes correctly when the user switches between light and dark themes in the settings.
+
+2.  **Ensure Content Styles are Consistent:**
+    -   **Task:** Review `app/components/ui/CustomDrawerContent.tsx`.
+    -   **Action:** Verified that the styles within the custom drawer content, such as dividers and text, are also using theme-aware colors. The root `View`'s background matches the navigator's new background, preventing color conflicts.
+    -   **Success Criteria:** All elements inside the drawer (buttons, labels, dividers) are clearly visible and styled appropriately against the new theme-aware background.
+
+3.  **Final Verification:**
+    -   **Task:** Manually test the application.
+    -   **Action:** Launch the app, open the drawer, and toggle between light and dark mode from the settings page.
+    -   **Success Criteria:** The drawer's background and all of its contents are styled correctly and are fully readable in both light and dark themes, providing a cohesive look.

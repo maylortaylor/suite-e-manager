@@ -3,6 +3,11 @@
 import * as React from "react";
 import * as firestore from "../../services/firestore";
 
+import {
+  DrawerButton,
+  DrawerButtonText,
+  Label,
+} from "@/app/components/ui/styled.components";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -10,9 +15,23 @@ import type { Checklist } from "../../../types/checklist";
 import { useChecklist } from "../../context/checklist-context";
 import { useTheme } from "styled-components/native";
 import { useUser } from "../../context/user-context";
-import {
-  Label,
-} from "@/app/components/ui/styled.components";
+
+interface CustomDrawerItemProps {
+  label: string;
+  onPress: () => void;
+}
+
+const CustomDrawerItem: React.FC<CustomDrawerItemProps> = ({
+  label,
+  onPress,
+}) => {
+  const theme = useTheme();
+  return (
+    <DrawerButton theme={theme} onPress={onPress}>
+      <DrawerButtonText theme={theme}>{label}</DrawerButtonText>
+    </DrawerButton>
+  );
+};
 
 export function CustomDrawerContent(props: any) {
   const { fetchFullChecklist } = useChecklist();
@@ -47,39 +66,46 @@ export function CustomDrawerContent(props: any) {
 
   const handleChecklistPress = (checklistId: string) => {
     fetchFullChecklist(checklistId);
+    props.navigation.navigate("Home");
     props.navigation.closeDrawer();
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <DrawerContentScrollView {...props}>
-        <DrawerItem
+        <CustomDrawerItem
           label="Home"
-          labelStyle={{ color: theme.colors.text }}
           onPress={() => props.navigation.navigate("Home")}
         />
         {/* Custom items */}
         <View
-          style={{ marginTop: 15, borderTopWidth: 1, borderTopColor: "#ccc" }}
+          style={{
+            marginTop: 15,
+            borderTopWidth: 1,
+            borderTopColor: theme.colors.divider,
+            paddingTop: 10,
+          }}
         >
           <Label
             fontSize={theme.global.fontSize["lg"]}
-            color={theme.colors.darkText}
+            color={theme.colors.text}
+            style={{ marginBottom: 10, marginLeft: 10 }}
           >
             All Checklists
           </Label>
           {isLoading ? (
-            <Text style={{ padding: 15 }}>Loading checklists...</Text>
+            <Text style={{ padding: 15, color: theme.colors.text }}>
+              Loading checklists...
+            </Text>
           ) : error ? (
             <Text style={{ padding: 15, color: "red" }}>
               Error: {error.message}
             </Text>
           ) : (
             checklists.map((checklist) => (
-              <DrawerItem
+              <CustomDrawerItem
                 key={checklist.id}
                 label={checklist.name}
-                labelStyle={{ color: theme.colors.text }}
                 onPress={() => handleChecklistPress(checklist.id)}
               />
             ))
@@ -87,23 +113,22 @@ export function CustomDrawerContent(props: any) {
         </View>
       </DrawerContentScrollView>
       {/* Bottom fixed buttons */}
-      <View style={styles.bottomDrawerSection}>
-        <DrawerItem
+      <View
+        style={[
+          styles.bottomDrawerSection,
+          { borderTopColor: theme.colors.divider },
+        ]}
+      >
+        <CustomDrawerItem
           label="Task Editor"
-          labelStyle={{ color: theme.colors.text }}
           onPress={() => props.navigation.navigate("task-editor")}
         />
-        <DrawerItem
+        <CustomDrawerItem
           label="Settings"
-          labelStyle={{ color: theme.colors.text }}
           onPress={() => props.navigation.navigate("Settings")}
         />
         {userState.user && (
-          <DrawerItem
-            label="Logout"
-            labelStyle={{ color: theme.colors.text }}
-            onPress={handleLogout}
-          />
+          <CustomDrawerItem label="Logout" onPress={handleLogout} />
         )}
       </View>
     </View>
@@ -113,7 +138,6 @@ export function CustomDrawerContent(props: any) {
 const styles = StyleSheet.create({
   bottomDrawerSection: {
     marginBottom: 15,
-    borderTopColor: "#f4f4f4",
     borderTopWidth: 1,
   },
 });

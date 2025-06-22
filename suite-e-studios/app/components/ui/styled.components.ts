@@ -510,3 +510,27 @@ export const TabText = styled.Text<{ active?: boolean }>`
     props.active ? "bold" : "normal"};
   font-size: 16px;
 `;
+
+export const DrawerButton = styled.TouchableOpacity<{ theme: DefaultTheme }>`
+  background-color: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.colors.secondary};
+  padding: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.base}px;
+  border-radius: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.borderRadius.base}px;
+  margin: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.xs}px
+    ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.sm}px;
+`;
+
+export const DrawerButtonText = styled.Text<{ theme: DefaultTheme }>`
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
+  font-size: ${({
+    fontSize,
+    theme,
+  }: {
+    fontSize?: number;
+    theme: DefaultTheme;
+  }) =>
+    getScaledFontSize(fontSize || theme.global.fontSize.base, theme.uiSize)}px;
+  font-weight: 500;
+`;

@@ -9,6 +9,7 @@ import { ChecklistsScreen } from "../screens/checklists";
 import { CustomDrawerContent } from "../components/ui/CustomDrawerContent";
 import { HomeScreen } from "../screens/home";
 import { SettingsScreen } from "../screens/settings";
+import { useTheme } from "styled-components/native";
 
 export type DrawerParamList = {
   Home: undefined;
@@ -19,13 +20,17 @@ export type DrawerParamList = {
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 export function DrawerNavigator() {
+  const theme = useTheme();
+
   return (
     <Drawer.Navigator
       initialRouteName="Home"
       drawerContent={(props: DrawerContentComponentProps) => (
         <CustomDrawerContent {...props} />
       )}
-      screenOptions={{ headerShown: true }}
+      screenOptions={{
+        headerShown: true,
+      }}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />
       <Drawer.Screen
