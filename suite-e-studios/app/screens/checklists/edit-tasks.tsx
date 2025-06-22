@@ -21,7 +21,7 @@ import { Divider } from "@/app/components/ui/Divider";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import { TouchableOpacity } from "react-native";
-import { db } from "../../firebaseConfig"; // Import db for batch writes
+import { db } from "../../services/firebase"; // Import db for batch writes
 import { toast } from "../../../utils/toast";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";

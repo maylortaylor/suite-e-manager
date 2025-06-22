@@ -8,7 +8,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import type { Checklist } from "../../types/checklist";
 import type { Task } from "../../types/task";
 import type { TaskList } from "../../types/task-list";
-import { db } from "../firebaseConfig";
+import { db } from "../services/firebase";
 import { toast } from "../../utils/toast";
 
 // The new state will hold a single, fully populated checklist

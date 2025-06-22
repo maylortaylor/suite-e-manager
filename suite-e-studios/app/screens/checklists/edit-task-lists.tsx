@@ -23,7 +23,7 @@ import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
 import type { Task } from "../../../types/task";
 import type { TaskList } from "../../../types/task-list";
-import { db } from "../../firebaseConfig";
+import { db } from "../../services/firebase";
 import { toast } from "../../../utils/toast";
 import { useTheme } from "styled-components/native";
 

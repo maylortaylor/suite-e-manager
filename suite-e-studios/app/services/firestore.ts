@@ -11,7 +11,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 
-import { db } from "../firebaseConfig";
+import { db } from "../services/firebase";
 
 // Generic function to get all documents from a collection
 export const getCollection = async <T>(
