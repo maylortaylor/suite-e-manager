@@ -97,54 +97,81 @@ export function ChecklistProvider({ children }: { children: React.ReactNode }) {
 
   const fetchFullChecklist = async (checklistId: string) => {
     dispatch({ type: "SET_LOADING", isLoading: true });
+    console.log(`FETCH_START: Fetching full checklist for ID: ${checklistId}`);
     try {
       // 1. Fetch the main checklist document
       const checklist = await firestore.getDocument<Checklist>(
         "checklists",
         checklistId
       );
+      console.log("FETCH_STEP_1: Main checklist doc fetched:", checklist);
+
       if (!checklist) {
-        throw new Error("Checklist not found!");
+        throw new Error(`Checklist with ID ${checklistId} not found!`);
       }
 
       // 2. Fetch all associated task lists
       let taskLists: TaskList[] = [];
       if (checklist.taskListIds && checklist.taskListIds.length > 0) {
+        console.log(
+          `FETCH_STEP_2: Fetching ${checklist.taskListIds.length} task lists...`
+        );
         const taskListPromises = checklist.taskListIds.map((id) =>
           firestore.getDocument<TaskList>("taskLists", id)
         );
         taskLists = (await Promise.all(taskListPromises)).filter(
           (tl): tl is TaskList => tl !== null
         );
+        console.log("FETCH_STEP_2_COMPLETE: Task lists fetched:", taskLists);
+      } else {
+        console.log("FETCH_STEP_2_SKIP: No taskListIds found on checklist.");
       }
 
       // 3. Gather all task IDs from the task lists and the checklist itself
       const taskListTaskIds = taskLists.flatMap((tl) => tl.taskIds || []);
+      const directTaskIds = checklist.taskIds || [];
       const allTaskIds = Array.from(
-        new Set([...(checklist.taskIds || []), ...taskListTaskIds])
+        new Set([...directTaskIds, ...taskListTaskIds])
+      );
+      console.log(
+        `FETCH_STEP_3: Combined all task IDs. Total unique tasks: ${allTaskIds.length}`,
+        {
+          directTaskIds,
+          taskListTaskIds,
+        }
       );
 
       // 4. Fetch all tasks
       let tasks: Task[] = [];
       if (allTaskIds.length > 0) {
+        console.log(`FETCH_STEP_4: Fetching ${allTaskIds.length} tasks...`);
         const taskPromises = allTaskIds.map((id) =>
           firestore.getDocument<Task>("tasks", id)
         );
         tasks = (await Promise.all(taskPromises)).filter(
           (t): t is Task => t !== null
         );
+        console.log("FETCH_STEP_4_COMPLETE: Tasks fetched:", tasks);
+      } else {
+        console.log("FETCH_STEP_4_SKIP: No task IDs to fetch.");
       }
 
       // 5. Set the fully populated checklist in the state
+      const finalChecklist = {
+        ...checklist,
+        taskLists,
+        tasks,
+      };
+      console.log(
+        "FETCH_SUCCESS: Dispatching SET_ACTIVE_CHECKLIST with final data:",
+        finalChecklist
+      );
       dispatch({
         type: "SET_ACTIVE_CHECKLIST",
-        checklist: {
-          ...checklist,
-          taskLists,
-          tasks,
-        },
+        checklist: finalChecklist,
       });
     } catch (e) {
+      console.error("FETCH_ERROR: An error occurred in fetchFullChecklist.", e);
       dispatch({ type: "SET_ERROR", error: e as Error });
     }
   };

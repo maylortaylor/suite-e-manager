@@ -8,14 +8,14 @@ import { useFocusEffect, useRoute } from "@react-navigation/native";
 
 import { AppLayout } from "@/app/components/ui/AppLayout";
 import { Container } from "@/app/components/ui/styled.components";
+import { DrawerParamList } from "../../navigation/drawer-navigator";
+import { DrawerScreenProps } from "@react-navigation/drawer";
 import { EditChecklistsScreen } from "./edit-checklists";
 import { EditTaskListsScreen } from "./edit-task-lists";
 import { EditTasksScreen } from "./edit-tasks";
-import { MainStackParamList } from "../../navigation/main-stack";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { View } from "react-native";
 
-type Props = NativeStackScreenProps<MainStackParamList, "Checklists">;
+type Props = DrawerScreenProps<DrawerParamList, "task-editor">;
 type ChecklistTab = "tasks" | "tasklists" | "checklists";
 
 export function ChecklistsScreen({ navigation }: Props) {
@@ -41,7 +41,7 @@ export function ChecklistsScreen({ navigation }: Props) {
   };
 
   return (
-    <AppLayout navigation={navigation}>
+    <AppLayout>
       <Tabs
         tabs={checklistTabs}
         activeTab={activeTab}

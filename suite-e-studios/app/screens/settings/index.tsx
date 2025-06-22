@@ -24,7 +24,6 @@ import { Button } from "@/app/components/ui/Button";
 import { Divider } from "@/app/components/ui/Divider";
 import { MainStackParamList } from "../../navigation/main-stack";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { UserMenu } from "@/app/components/ui/UserMenu";
 import { auth } from "../../firebaseConfig";
 import { signOut } from "firebase/auth";
 import { toast } from "../../../utils/toast";

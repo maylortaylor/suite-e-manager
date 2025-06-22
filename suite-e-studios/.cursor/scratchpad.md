@@ -87,3 +87,30 @@ The application needs an administrative user who can view, create, update, and d
     - [x] **If the user is not an admin:**
         - [x] The flow remains the same as it is now: fetch the single checklist associated with their role.
     - [x] Success Criteria: An admin user logs in and sees a list of all checklists. They can select one and view its tasks. A standard user logs in and sees only their assigned checklist.
+
+# Feature: Improve Drawer Readability
+
+## Background & Motivation
+The user has reported that the text for the navigation items in the side drawer (e.g., "Home," "Task Editor," checklist names) is not readable. This is a critical UI/UX issue that makes the app difficult to navigate. The text color does not contrast sufficiently with the drawer background color, likely because it is not adapting correctly to the application's light and dark themes.
+
+## Key Challenges & Analysis
+- **Theme Integration:** The core challenge is to ensure the components within the drawer, specifically `DrawerItem`, respect the application's current theme (light or dark).
+- **Component Styling:** The `@react-navigation/drawer` components have their own styling props (`activeTintColor`, `inactiveTintColor`, `labelStyle`) which need to be correctly managed. We need to determine the best way to apply our theme's colors to these props.
+- **Context Awareness:** The `CustomDrawerContent` component must be aware of the current theme provided by `ThemeContext` to apply colors dynamically.
+
+## High-level Task Breakdown
+
+1.  **Make Drawer Theme-Aware:**
+    -   **Task:** Modify `app/components/ui/CustomDrawerContent.tsx`.
+    -   **Action:** Import and use the `useTheme` hook from `styled-components/native` to access the current theme's colors.
+    -   **Success Criteria:** The component successfully receives the theme object containing the correct color values for the active theme (light/dark).
+
+2.  **Apply Dynamic Text Color:**
+    -   **Task:** Update the `DrawerItem` components within `CustomDrawerContent.tsx`.
+    -   **Action:** Use the theme colors to dynamically set the `labelStyle` for each `DrawerItem`. The `color` property should be set to the theme's primary text color (e.g., `theme.colors.text`).
+    -   **Success Criteria:** The text color of all items in the drawer (both the checklist list and the bottom buttons) automatically updates to a readable color when the app's theme is switched between light and dark mode.
+
+3.  **Final Verification:**
+    -   **Task:** Manually test the application.
+    -   **Action:** Launch the app, open the drawer, and toggle between light and dark mode from the settings page.
+    -   **Success Criteria:** The drawer text is clearly legible against the background in both themes.

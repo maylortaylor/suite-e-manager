@@ -8,7 +8,6 @@ import {
   ThemeProvider as AppThemeProvider,
   useThemeMode,
 } from "./context/theme-context";
-import { NavProvider } from "./context/nav-context";
 import {
   DarkTheme as NavigationDarkTheme,
   DefaultTheme as NavigationDefaultTheme,
@@ -17,7 +16,8 @@ import {
 import Toast, { BaseToast, ToastConfig } from "react-native-toast-message";
 
 import { ChecklistProvider } from "./context/checklist-context";
-import { MainStack } from "./navigation/main-stack";
+import { DrawerNavigator } from "./navigation/drawer-navigator";
+import { NavProvider } from "./context/nav-context";
 import { PortalProvider } from "@gorhom/portal";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider as StyledThemeProvider } from "styled-components/native";
@@ -144,7 +144,7 @@ function RootLayoutInner() {
             <ChecklistProvider>
               <NavigationThemeProvider value={navTheme}>
                 <NavProvider>
-                  <MainStack />
+                  <DrawerNavigator />
                 </NavProvider>
               </NavigationThemeProvider>
             </ChecklistProvider>
