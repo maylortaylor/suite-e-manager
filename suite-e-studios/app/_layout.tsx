@@ -1,6 +1,6 @@
 /** @format */
 
-import "./firebaseConfig"; // Initialize Firebase
+import "./services/firebase"; // Initialize Firebase
 
 import * as React from "react";
 

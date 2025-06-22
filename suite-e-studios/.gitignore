@@ -32,6 +32,7 @@ firebase-debug.log*
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript
@@ -56,4 +57,3 @@ firebase-debug.log
 
 # Service Account Keys
 suite-e-studios-firebase-adminsdk.json
-firebaseConfig.ts

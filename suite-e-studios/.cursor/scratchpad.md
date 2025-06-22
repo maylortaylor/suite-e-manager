@@ -166,3 +166,50 @@ The user wants to improve the overall styling of the navigation drawer. The curr
     -   **Task:** Manually test the application.
     -   **Action:** Launch the app, open the drawer, and toggle between light and dark mode from the settings page.
     -   **Success Criteria:** The drawer's background and all of its contents are styled correctly and are fully readable in both light and dark themes, providing a cohesive look.
+
+## Project: Secure Firebase Configuration Management
+
+### Background and Motivation
+
+The project aims to securely manage Firebase configuration credentials within an Expo application. Currently, a `firebaseConfig.ts` file containing sensitive API keys is present in the codebase. This file is listed in `.gitignore` to prevent it from being committed to the public GitHub repository. However, this approach causes the application build to fail in CI/CD environments (like GitHub Actions) because the required file is missing.
+
+The goal is to refactor the application to use environment variables for Firebase configuration. This allows for secure storage of credentials for both local development (using a local `.env` file) and for production deployments (using GitHub Repository Secrets), ensuring the application can be built and deployed without exposing sensitive information.
+
+### Key Challenges and Analysis
+
+1.  **Secret Management**: Sensitive keys must not be stored in the version-controlled codebase.
+2.  **Local Development**: Developers need a straightforward way to provide these keys to the application on their local machines.
+3.  **Deployment/CI/CD**: The automated build process needs a secure mechanism to access these keys to build the application for production.
+4.  **Code Consistency**: The application code should not need to change between local and production environments. It should seamlessly read the configuration from its environment.
+
+The chosen solution is to use `dotenv` functionality, which is built into Expo, to manage environment variables.
+
+### High-level Task Breakdown
+
+1.  **Setup Local Environment Configuration**: Create a `.env.example` file to serve as a template for developers, and update `.gitignore` to ensure local `.env` files are not committed.
+2.  **Refactor Firebase Initialization**: Create a new, version-controlled file that initializes Firebase by reading credentials from environment variables. Update the application's entry point to use this new file.
+3.  **Configure GitHub Actions for Secrets**: Create or update the GitHub Actions workflow file (`.github/workflows/main.yml`) to inject the GitHub Repository Secrets as environment variables during the build and deployment process.
+4.  **Cleanup and Verification**: Remove the old, untracked `firebaseConfig.ts` file and verify that the application runs correctly both locally and when deployed.
+
+### Project Status Board
+
+- [x] **Task 1: Setup Local Environment Configuration**
+    - [x] Create `suite-e-studios/.env.example`.
+    - [x] Update `suite-e-studios/.gitignore` to include `.env`.
+- [x] **Task 2: Refactor Firebase Initialization**
+    - [x] Create `suite-e-studios/app/services/firebase.ts`.
+    - [x] Modify `suite-e-studios/app/_layout.tsx` to use the new initialization file.
+- [x] **Task 3: Configure GitHub Actions for Secrets**
+    - [x] Create/update a GitHub Actions workflow to use secrets.
+- [x] **Task 4: Cleanup and Verification**
+    - [x] Delete the old `firebaseConfig.ts` file.
+    - [ ] Manually verify local build works.
+    - [ ] Manually verify deployment and production app works.
+
+### Executor's Feedback or Assistance Requests
+
+Execution of all planned tasks is complete. The project is now configured to use environment variables for Firebase credentials. Awaiting manual verification from the user to confirm that both local development and the production deployment are working correctly.
+
+### Lessons
+
+*This section is for documenting lessons learned to avoid repeating mistakes.*
