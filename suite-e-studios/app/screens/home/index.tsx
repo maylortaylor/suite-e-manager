@@ -20,7 +20,7 @@ import { DrawerScreenProps } from "@react-navigation/drawer";
 import { LoginForm } from "../../components/auth";
 import { Text } from "react-native";
 import type { User } from "../../../types/user";
-import { auth } from "../../firebaseConfig";
+import { auth } from "../../services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useChecklist } from "../../context/checklist-context";
 import { useUser } from "../../context/user-context";
