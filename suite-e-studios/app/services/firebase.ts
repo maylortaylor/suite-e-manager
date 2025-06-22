@@ -3,17 +3,22 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: process.env.FIREBASE_CONFIG_API_KEY,
-  authDomain: process.env.FIREBASE_CONFIG_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_CONFIG_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_CONFIG_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_CONFIG_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_CONFIG_APP_ID,
-  measurementId: process.env.FIREBASE_CONFIG_MEASUREMENT_ID,
+  apiKey: process.env.EXPO_PUBLIC_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_MEASUREMENT_ID,
 };
+
+if (!firebaseConfig.apiKey) {
+  throw new Error(
+    "Firebase API key is missing. Please check your .env file and ensure EXPO_PUBLIC_API_KEY is set."
+  );
+}
 
 // Initialize Firebase
 let app;
@@ -24,6 +29,5 @@ if (!getApps().length) {
 }
 
 const db = getFirestore(app);
-const auth = getAuth(app);
 
-export { db, auth };
+export { db };

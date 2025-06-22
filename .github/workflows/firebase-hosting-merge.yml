@@ -18,13 +18,12 @@ jobs:
           npm run web:build
         working-directory: suite-e-studios
         env:
-          FIREBASE_CONFIG_API_KEY: ${{ secrets.FIREBASE_CONFIG_API_KEY }}
-          FIREBASE_CONFIG_AUTH_DOMAIN: ${{ secrets.FIREBASE_CONFIG_AUTH_DOMAIN }}
-          FIREBASE_CONFIG_PROJECT_ID: ${{ secrets.FIREBASE_CONFIG_PROJECT_ID }}
-          FIREBASE_CONFIG_STORAGE_BUCKET: ${{ secrets.FIREBASE_CONFIG_STORAGE_BUCKET }}
-          FIREBASE_CONFIG_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_CONFIG_MESSAGING_SENDER_ID }}
-          FIREBASE_CONFIG_APP_ID: ${{ secrets.FIREBASE_CONFIG_APP_ID }}
-          FIREBASE_CONFIG_MEASUREMENT_ID: ${{ secrets.FIREBASE_CONFIG_MEASUREMENT_ID }}
+          EXPO_PUBLIC_API_KEY: ${{ secrets.EXPO_PUBLIC_API_KEY }}
+          EXPO_PUBLIC_AUTH_DOMAIN: ${{ secrets.EXPO_PUBLIC_AUTH_DOMAIN }}
+          EXPO_PUBLIC_PROJECT_ID: ${{ secrets.EXPO_PUBLIC_PROJECT_ID }}
+          EXPO_PUBLIC_STORAGE_BUCKET: ${{ secrets.EXPO_PUBLIC_STORAGE_BUCKET }}
+          EXPO_PUBLIC_MESSAGING_SENDER_ID: ${{ secrets.EXPO_PUBLIC_MESSAGING_SENDER_ID }}
+          EXPO_PUBLIC_APP_ID: ${{ secrets.EXPO_PUBLIC_APP_ID }}
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
