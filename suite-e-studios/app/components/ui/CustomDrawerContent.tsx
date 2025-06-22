@@ -10,6 +10,9 @@ import type { Checklist } from "../../../types/checklist";
 import { useChecklist } from "../../context/checklist-context";
 import { useTheme } from "styled-components/native";
 import { useUser } from "../../context/user-context";
+import {
+  Label,
+} from "@/app/components/ui/styled.components";
 
 export function CustomDrawerContent(props: any) {
   const { fetchFullChecklist } = useChecklist();
@@ -59,15 +62,12 @@ export function CustomDrawerContent(props: any) {
         <View
           style={{ marginTop: 15, borderTopWidth: 1, borderTopColor: "#ccc" }}
         >
-          <Text
-            style={{
-              padding: 15,
-              fontWeight: "bold",
-              color: theme.colors.text,
-            }}
+          <Label
+            fontSize={theme.global.fontSize["lg"]}
+            color={theme.colors.darkText}
           >
             All Checklists
-          </Text>
+          </Label>
           {isLoading ? (
             <Text style={{ padding: 15 }}>Loading checklists...</Text>
           ) : error ? (

@@ -113,6 +113,7 @@ export const ItemBox = styled.View<{ theme: DefaultTheme }>`
 export const Label = styled.Text<{
   theme: DefaultTheme;
   fontSize?: number;
+  color?: string;
 }>`
   font-size: ${({
     fontSize,
@@ -124,7 +125,8 @@ export const Label = styled.Text<{
     getScaledFontSize(fontSize || theme.global.fontSize["xl"], theme.uiSize)}px;
   margin-right: ${({ theme }: { theme: DefaultTheme }) =>
     theme.global.spacing.md}px;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.text};
+  color: ${({ color, theme }: { color?: string; theme: DefaultTheme }) =>
+    color || theme.colors.text};
 `;
 
 export const ItemLabel = styled.Text<{
