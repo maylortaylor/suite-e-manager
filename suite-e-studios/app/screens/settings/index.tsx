@@ -1,12 +1,10 @@
 /** @format */
 
 import {
-  Alert,
   Dimensions,
   FlatList,
   ScrollView,
   Switch,
-  View,
 } from "react-native";
 import {
   Container,
@@ -133,7 +131,7 @@ export function SettingsScreen({ navigation }: Props) {
   }
 
   return (
-    <AppLayout navigation={navigation}>
+    <AppLayout>
       <ScrollView contentContainerStyle={{ paddingBottom: 1000 }}>
         <Container>
           <SectionTitle>User Settings</SectionTitle>
