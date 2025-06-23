@@ -1,7 +1,7 @@
 /** @format */
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import globalChecklists from "../global.checklists.json";
+import globalChecklists from "../firebase.store-seed.json";
 
 const SEEDED_FLAG = "hasSeededChecklistData";
 const TASKS_KEY = "tasks";

@@ -1,29 +1,39 @@
 {
   "users": [
     {
-      "email": "sound@suitee.com",
+      "email": "suite.e.stpete+admin@gmail.com",
+      "username": "Admin",
       "password": "password123",
-      "roleId": "sound-engineer"
+      "name": "Admin",
+      "roleId": "Role-00000000-0000-0000-0000-000000000000"
     },
     {
-      "email": "producer@suitee.com",
+      "email": "suite.e.stpete+sound@gmail.com",
+      "username": "Sound",
       "password": "password123",
-      "roleId": "event-producer"
+      "name": "Sound Engineer",
+      "roleId": "Role-11111111-1111-1111-1111-111111111111"
     },
     {
-      "email": "door@suitee.com",
-      "password": "password123",
-      "roleId": "door-person"
+      "email": "suite.e.stpete+producer@gmail.com",
+      "username": "Producer",
+      "password": "password123",  
+      "name": "Event Producer",
+      "roleId": "Role-22222222-2222-2222-2222-222222222222"
     },
     {
-      "email": "bar@suitee.com",
-      "password": "password123",
-      "roleId": "bar-person"
+      "email": "suite.e.stpete+door@gmail.com",
+      "username": "Door",
+      "password": "password123",  
+      "name": "Door Person",
+      "roleId": "Role-33333333-3333-3333-3333-333333333333"
     },
     {
-      "email": "admin@suitee.com",
-      "password": "password123",
-      "roleId": "admin"
+      "email": "suite.e.stpete+bar@gmail.com",
+      "username": "Bar",
+      "password": "password123",  
+      "name": "Bar Person",
+      "roleId": "Role-44444444-4444-4444-4444-444444444444"
     }
   ],
   "roles": [
@@ -48,7 +58,7 @@
       "description": "Bar Person"
     },
     {
-      "id": "admin",
+      "id": "Role-55555555-5555-5555-5555-555555555555",
       "name": "Admin",
       "description": "System Administrator"
     }

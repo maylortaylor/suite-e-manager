@@ -14,8 +14,9 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// Path to your global checklists JSON file
-const dataPath = path.join(__dirname, "../global.checklists.json");
+// Path to your firebase.store-seed.json JSON file
+// eslint-disable-next-line no-undef
+const dataPath = path.join(__dirname, "../firebase.store-seed.json");
 const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
 
 const collectionsToClear = ["tasks", "taskLists", "checklists", "users"];
@@ -60,6 +61,9 @@ async function uploadAuthUsers() {
       // Update Firestore user profile
       await db.collection("users").doc(userRecord.uid).set({
         email: user.email,
+        username: user.username,
+        username_lowercase: user.username.toLowerCase(),
+        name: user.name,
         roleId: user.roleId,
       });
     } catch (error) {
@@ -75,6 +79,9 @@ async function uploadAuthUsers() {
         // Create Firestore user profile
         await db.collection("users").doc(newUserRecord.uid).set({
           email: user.email,
+          username: user.username,
+          username_lowercase: user.username.toLowerCase(),
+          name: user.name,
           roleId: user.roleId,
         });
       } else {

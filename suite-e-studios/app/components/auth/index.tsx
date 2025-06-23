@@ -9,6 +9,13 @@ import {
   AuthErrorText,
   AuthInput,
 } from "@/app/components/ui/styled.components";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  query,
+  where,
+} from "firebase/firestore";
 
 import { Image } from "react-native";
 import { useThemeMode } from "../../context/theme-context";
@@ -20,12 +27,34 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
-  const [email, setEmail] = React.useState("");
+  const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const { colorScheme } = useThemeMode();
+  const db = getFirestore();
 
-  function handleLogin() {
-    onLogin(email.trim(), password);
+  async function handleLogin() {
+    try {
+      const usersRef = collection(db, "users");
+      const q = query(
+        usersRef,
+        where("username_lowercase", "==", username.trim().toLowerCase())
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        console.log("No matching documents.");
+        onLogin("", ""); // Trigger error state
+        return;
+      }
+
+      const userData = querySnapshot.docs[0].data();
+      const email = userData.email;
+
+      onLogin(email, password);
+    } catch (error) {
+      console.error("Error getting user email:", error);
+      onLogin("", ""); // Trigger error state
+    }
   }
 
   return (
@@ -51,14 +80,14 @@ export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
         </AuthErrorText>
       )}
       <AuthInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
         autoCapitalize="none"
-        keyboardType="email-address"
-        textContentType="emailAddress"
+        keyboardType="default"
+        textContentType="username"
         accessible
-        accessibilityLabel="Email"
+        accessibilityLabel="Username"
         returnKeyType="next"
         editable={!isLoading}
       />

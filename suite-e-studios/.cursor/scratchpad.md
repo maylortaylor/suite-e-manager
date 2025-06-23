@@ -213,3 +213,43 @@ Execution of all planned tasks is complete. The project is now configured to use
 ### Lessons
 
 *This section is for documenting lessons learned to avoid repeating mistakes.*
+
+# Project: Username/Password Authentication
+
+## Background and Motivation
+
+The goal is to allow users to log in to the application using a username and password combination instead of an email address. This provides a more traditional login experience. Since Firebase Authentication's standard email/password provider requires an email, we will implement a system where the application looks up the email associated with a given username from our Firestore database and then uses that email to authenticate with Firebase Auth.
+
+## Key Challenges and Analysis
+
+1.  **Data Seeding:** The user data in Firestore must be updated to include a `username` for each user. The seed script needs to be modified to handle this, including reading from a renamed data source file (`firebase.store-seed.json`).
+2.  **Authentication Flow:** The login UI and logic must be changed. The app will need to query Firestore to find the user's email based on the entered username before attempting to sign in with Firebase. This adds an extra step to the login process.
+3.  **User Experience:** Error handling needs to be clear. If a username isn't found, or if the password is correct, the user should receive a clear message without revealing whether the username or password was the incorrect part (to prevent username enumeration).
+
+## High-level Task Breakdown / Project Status Board
+
+- [x] **Task 1: Update Data Seeding Configuration**
+    - [x] Rename `suite-e-studios/global.checklists.json` to `suite-e-studios/firebase.store-seed.json`.
+    - [x] Confirm the user objects in `suite-e-studios/firebase.store-seed.json` contain `username` and `name` fields.
+    - [x] Modify `suite-e-studios/scripts/seed-firestore.js` to read from `suite-e-studios/firebase.store-seed.json`.
+    - [x] Update `suite-e-studios/scripts/seed-firestore.js` to save the `username` and `name` fields from the seed file into the `users` collection in Firestore.
+    - **Success Criteria:** The seed script runs without errors. After running, the `users` collection in the Firestore database contains documents for each user, and each document includes the `email`, `roleId`, `username`, and `name` fields.
+
+- [x] **Task 2: Implement Username/Password Login Flow**
+    - [x] Modify the authentication component at `suite-e-studios/app/components/auth/index.tsx`.
+    - [x] Change the input field from "Email" to "Username".
+    - [x] Implement the logic to:
+        1. Query the `users` collection in Firestore for the entered username.
+        2. Retrieve the corresponding email address.
+        3. Use the email and password to sign in with `signInWithEmailAndPassword`.
+    - [x] Implement appropriate error handling for invalid username or password.
+    - **Success Criteria:** A user can log in using their username and password. An invalid username or password results in a clear error message.
+
+## Executor's Feedback or Assistance Requests
+
+Task 1 is complete. The seed script has been updated. Please run the script and verify the data in Firestore.
+Task 2 is complete. The login form now accepts a username. Please test the login functionality.
+
+## Lessons
+
+*(No lessons yet)*
