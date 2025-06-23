@@ -22,6 +22,7 @@ import { PortalProvider } from "@gorhom/portal";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider as StyledThemeProvider } from "styled-components/native";
 import { UserProvider } from "./context/user-context";
+import { configureGoogleSignIn } from "./services/google/auth";
 import themeJson from "../globals.theme.json";
 
 const darkTheme = {
@@ -124,6 +125,11 @@ export default function RootLayout() {
 
 function RootLayoutInner() {
   const { colorScheme, uiSize } = useThemeMode();
+
+  React.useEffect(() => {
+    configureGoogleSignIn();
+  }, []);
+
   const theme = {
     ...(colorScheme === "dark" ? darkTheme : lightTheme),
     uiSize,

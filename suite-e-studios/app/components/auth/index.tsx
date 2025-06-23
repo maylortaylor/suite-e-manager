@@ -8,6 +8,7 @@ import {
   AuthContainer,
   AuthErrorText,
   AuthInput,
+  Divider,
 } from "@/app/components/ui/styled.components";
 import {
   collection,
@@ -19,6 +20,7 @@ import {
 
 import { Image } from "react-native";
 import { useThemeMode } from "../../context/theme-context";
+import { useUser } from "@/app/context/user-context";
 
 interface LoginFormProps {
   onLogin: (email: string, password: string) => void;
@@ -30,6 +32,7 @@ export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
   const { colorScheme } = useThemeMode();
+  const { googleSignIn } = useUser();
   const db = getFirestore();
 
   async function handleLogin() {
@@ -55,6 +58,10 @@ export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
       console.error("Error getting user email:", error);
       onLogin("", ""); // Trigger error state
     }
+  }
+
+  async function handleGoogleSignIn() {
+    await googleSignIn();
   }
 
   return (
@@ -108,6 +115,16 @@ export function LoginForm({ onLogin, isLoading, hasError }: LoginFormProps) {
         disabled={isLoading}
       >
         <AuthButtonText>{isLoading ? "Logging in..." : "Login"}</AuthButtonText>
+      </AuthButton>
+      <Divider />
+      <AuthButton
+        onPress={handleGoogleSignIn}
+        accessibilityRole="button"
+        disabled={isLoading}
+      >
+        <AuthButtonText>
+          {isLoading ? "..." : "Sign in with Google"}
+        </AuthButtonText>
       </AuthButton>
     </AuthContainer>
   );

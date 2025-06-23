@@ -531,3 +531,12 @@ export const DrawerButtonText = styled.Text<{ theme: DefaultTheme }>`
     getScaledFontSize(fontSize || theme.global.fontSize.base, theme.uiSize)}px;
   font-weight: 500;
 `;
+
+export const Divider = styled.View<{ theme: DefaultTheme }>`
+  height: 1px;
+  background-color: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.colors.divider};
+  width: 100%;
+  margin-vertical: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.global.spacing.md}px;
+`;

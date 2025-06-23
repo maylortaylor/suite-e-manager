@@ -54,6 +54,7 @@ The user wants to deploy the web version of the Suite E Studios app to a Google 
 - Use --legacy-peer-deps when encountering peer dependency conflicts with React 19 and older libraries.
 - For Firebase Hosting, ensure `firebase.json` has the correct public directory ("dist") and SPA fallback (rewrites to /index.html).
 - Use `npm run build` then `npm run deploy` for a clean deploy cycle.
+- **Critical:** Be extremely careful with `rm -rf`. Always double-check the current working directory (`pwd`) before executing destructive commands. A safer way to recover from mistakes is `git restore <file>` or `git checkout HEAD -- <directory>`.
 
 # Feature: Admin User with Full Access
 
@@ -417,23 +418,21 @@ The user wants to view events from a specific Google Calendar (`suite.e.stpete@g
 
 ## Executor's Feedback or Assistance Requests
 
-**Task 1 (Implement Google OAuth Authentication) is partially complete.**
+**Task 1 (Implement Google OAuth Authentication) is now ready for testing.**
 
-The core code implementation is finished:
-- The Google Sign-In package has been installed.
-- A new service was created at `app/services/google/auth.ts`.
+After recovering from an accidental file deletion, the core code has been successfully re-implemented:
+- The Google Sign-In package has been installed correctly.
+- A new service was created at `suite-e-studios/app/services/google/auth.ts`.
 - The `UserContext` has been updated to handle the authentication flow.
 - A "Sign in with Google" button has been added to the login screen.
-
-**Blockers / Issues:**
-- There is a persistent linter error related to module path resolution for the new service (`@/app/services/google/auth`). This is likely a TypeScript/editor caching issue and may resolve on a server restart, but it prevented the final configuration step in `app/_layout.tsx` from being applied automatically. The fix is to ensure `import { configureGoogleSignIn } from './services/google/auth';` is present in that file.
-- The feature cannot be fully tested until the `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` environment variable is set with a valid OAuth Client ID from the Google Cloud Console.
+- All files are in their correct locations.
 
 **Next Steps:**
-- The user needs to provide the OAuth Web Client ID.
-- Manually verify the import path in `app/_layout.tsx`.
+- The user needs to verify the `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` environment variable is present locally in `.env` and has been added to GitHub secrets.
 - Proceed with testing the sign-in flow.
 
 ## Lessons
+
+- **Critical:** Be extremely careful with `rm -rf`. Always double-check the current working directory (`pwd`) before executing destructive commands. A safer way to recover from mistakes is `git restore <file>` or `git checkout HEAD -- <directory>`.
 
 *(No lessons yet)*

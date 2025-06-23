@@ -2,9 +2,13 @@
 
 import * as React from "react";
 
+import { GoogleAuthProvider, getAuth, signInWithCredential } from "firebase/auth";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { getSetting, saveSetting } from "@/utils/storage";
 
 import type { User } from "../../types/user";
+import { onGoogleButtonPress } from "../services/google/auth";
+import { signOut } from "../services/google/auth";
 
 const USER_SESSION_KEY = "user_session";
 const SESSION_DURATION = 72 * 60 * 60 * 1000; // 72 hours in milliseconds
@@ -31,6 +35,7 @@ const UserContext = React.createContext<
   | {
       state: UserState;
       dispatch: React.Dispatch<Action>;
+      googleSignIn: () => Promise<void>;
     }
   | undefined
 >(undefined);
@@ -58,6 +63,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = React.useReducer(userReducer, initialState);
+  const auth = getAuth();
+  const db = getFirestore();
 
   React.useEffect(() => {
     async function loadSession() {
@@ -81,6 +88,36 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     loadSession();
   }, []);
 
+  const googleSignIn = async () => {
+    dispatch({ type: "SET_LOADING", isLoading: true });
+    try {
+      const firebaseUser = await onGoogleButtonPress();
+
+      if (firebaseUser?.uid) {
+        const userDocRef = doc(db, "users", firebaseUser.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as User;
+          await enhancedDispatch({ type: "LOGIN", user: userData });
+        } else {
+          // This case can happen if a new Google user signs in who is not yet in our database.
+          // For now, we'll treat it as an error and sign them out of Firebase.
+          await signOut();
+          dispatch({ type: "SET_ERROR", hasError: true });
+        }
+      } else {
+        // This case handles when the user cancels the sign-in popup.
+        // We don't need to show an error, just stop the loading indicator.
+      }
+    } catch (error) {
+      console.error("Google Sign-In failed:", error);
+      dispatch({ type: "SET_ERROR", hasError: true });
+    } finally {
+      dispatch({ type: "SET_LOADING", isLoading: false });
+    }
+  };
+
   const enhancedDispatch = async (action: Action) => {
     switch (action.type) {
       case "LOGIN":
@@ -98,6 +135,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         break;
       case "LOGOUT":
         try {
+          await signOut(); // Use our new platform-aware sign out
           await saveSetting(USER_SESSION_KEY, ""); // Clear session
           dispatch(action);
         } catch (error) {
@@ -111,7 +149,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <UserContext.Provider
-      value={{ state, dispatch: enhancedDispatch as React.Dispatch<Action> }}
+      value={{
+        state,
+        dispatch: enhancedDispatch as React.Dispatch<Action>,
+        googleSignIn,
+      }}
     >
       {children}
     </UserContext.Provider>
