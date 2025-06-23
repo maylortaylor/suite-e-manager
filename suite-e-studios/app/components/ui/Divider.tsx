@@ -1,6 +1,6 @@
 /** @format */
 
-import { View, ViewProps, useWindowDimensions } from "react-native";
+import { ViewProps, useWindowDimensions } from "react-native";
 
 import { DefaultTheme } from "styled-components";
 import React from "react";

@@ -3,7 +3,7 @@
 import * as Clipboard from "expo-clipboard";
 import * as firestore from "../../services/firestore";
 
-import { Button, ScrollView, View } from "react-native";
+import { Button, ScrollView, TouchableOpacity, View } from "react-native";
 import {
   Container,
   Input,
@@ -20,7 +20,6 @@ import { Collapsible } from "../../components/ui/Collapsible";
 import { Divider } from "@/app/components/ui/Divider";
 import { IconSymbol } from "@/app/components/ui/IconSymbol";
 import { StyledPicker } from "@/app/components/ui/StyledPicker";
-import { TouchableOpacity } from "react-native";
 import { db } from "../../services/firebase"; // Import db for batch writes
 import { toast } from "../../../utils/toast";
 import { useFocusEffect } from "@react-navigation/native";

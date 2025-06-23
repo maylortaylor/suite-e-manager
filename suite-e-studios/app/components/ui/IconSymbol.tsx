@@ -24,7 +24,7 @@ const MAPPING = {
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
   "doc.on.doc": "content-copy",
-  "xmark": "close",
+  xmark: "close",
 } as IconMapping;
 
 /**

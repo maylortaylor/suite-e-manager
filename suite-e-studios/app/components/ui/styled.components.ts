@@ -3,10 +3,7 @@
 import { FontSizes, getScaledFontSize } from "@/utils/font-scaling";
 
 import type { DefaultTheme } from "styled-components";
-import { Dimensions } from "react-native";
 import styled from "styled-components/native";
-
-const screenWidth = Dimensions.get("window").width;
 
 export const Input = styled.TextInput<{ theme: DefaultTheme }>`
   background-color: ${({ theme }: { theme: DefaultTheme }) =>

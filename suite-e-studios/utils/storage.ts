@@ -19,7 +19,7 @@ export interface ChecklistData {
 export async function saveSetting(key: string, value: string): Promise<void> {
   try {
     await AsyncStorage.setItem(key, value);
-  } catch (e) {
+  } catch {
     // Optionally log error
   }
 }
@@ -27,7 +27,7 @@ export async function saveSetting(key: string, value: string): Promise<void> {
 export async function getSetting(key: string): Promise<string | null> {
   try {
     return await AsyncStorage.getItem(key);
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -38,7 +38,7 @@ export async function saveChecklistCache(
 ): Promise<void> {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
+  } catch {
     // Optionally log error
   }
 }
@@ -49,7 +49,7 @@ export async function getChecklistCache<T = unknown>(
   try {
     const json = await AsyncStorage.getItem(key);
     return json ? (JSON.parse(json) as T) : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -147,7 +147,7 @@ export async function loadAllChecklistData(): Promise<ChecklistData> {
       checklists,
       completedTasks: new Set<string>(completedTasksArray),
     };
-  } catch (e) {
+  } catch {
     // On error, return global data
     return {
       tasks: globalChecklists.tasks,

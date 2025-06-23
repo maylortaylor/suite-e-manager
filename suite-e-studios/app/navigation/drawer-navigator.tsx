@@ -30,6 +30,9 @@ export function DrawerNavigator() {
       )}
       screenOptions={{
         headerShown: true,
+        drawerStyle: {
+          backgroundColor: theme.colors.background,
+        },
       }}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />

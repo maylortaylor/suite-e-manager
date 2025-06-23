@@ -1,12 +1,6 @@
 /** @format */
 
 import {
-  Dimensions,
-  FlatList,
-  ScrollView,
-  Switch,
-} from "react-native";
-import {
   Container,
   Input,
   ItemBox,
@@ -14,6 +8,7 @@ import {
   Row,
   SectionTitle,
 } from "@/app/components/ui/styled.components";
+import { Dimensions, FlatList, ScrollView, Switch } from "react-native";
 import React, { useEffect, useState } from "react";
 import { getSetting, saveSetting } from "../../../utils/storage";
 
@@ -42,7 +37,7 @@ const DEFAULT_ROLES = [
 
 type Props = NativeStackScreenProps<MainStackParamList, "Settings">;
 
-export function SettingsScreen({ navigation }: Props) {
+export function SettingsScreen({}: Props) {
   const { mode, setMode, uiSize, setUISize } = useThemeMode();
   const theme = useTheme();
   const { dispatch: userDispatch } = useUser();
@@ -113,7 +108,7 @@ export function SettingsScreen({ navigation }: Props) {
       await saveSetting(CATEGORY_KEY, JSON.stringify(categories));
       await saveSetting(ROLE_KEY, JSON.stringify(roles));
       toast.success("Settings saved successfully");
-    } catch (e) {
+    } catch {
       toast.error("Failed to save settings");
     }
     setSaving(false);

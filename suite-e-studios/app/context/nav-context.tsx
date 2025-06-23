@@ -3,7 +3,6 @@
 import * as React from "react";
 
 import { useNavigationState } from "@react-navigation/native";
-import { useUser } from "./user-context";
 
 interface NavContextType {
   activeRoute: string;
@@ -23,7 +22,6 @@ export const NavProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [activeTab, setActiveTab] = React.useState("tasks");
-  const { state: userState } = useUser();
   const routeName = useNavigationState(
     (state) => state?.routes[state.index]?.name
   );

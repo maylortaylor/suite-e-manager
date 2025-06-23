@@ -8,7 +8,10 @@ import {
   DrawerButtonText,
   Label,
 } from "@/app/components/ui/styled.components";
-import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
+import {
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+} from "@react-navigation/drawer";
 import { StyleSheet, Text, View } from "react-native";
 
 import type { Checklist } from "../../../types/checklist";
@@ -33,7 +36,7 @@ const CustomDrawerItem: React.FC<CustomDrawerItemProps> = ({
   );
 };
 
-export function CustomDrawerContent(props: any) {
+export function CustomDrawerContent(props: DrawerContentComponentProps) {
   const { fetchFullChecklist } = useChecklist();
   const { state: userState, dispatch: userDispatch } = useUser();
   const theme = useTheme();

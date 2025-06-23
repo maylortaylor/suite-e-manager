@@ -69,7 +69,7 @@ export function UserMenu() {
               style={{ zIndex: 2 }}
             >
               <MenuContainer>
-              <MenuButton onPress={handleHome} accessibilityRole="button">
+                <MenuButton onPress={handleHome} accessibilityRole="button">
                   <MenuButtonText>Home</MenuButtonText>
                 </MenuButton>
                 <MenuButton

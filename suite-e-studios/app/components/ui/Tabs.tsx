@@ -1,7 +1,7 @@
 /** @format */
 import * as React from "react";
 
-import {useTheme } from "styled-components/native";
+import { useTheme } from "styled-components/native";
 import { TabButton, TabText, TabsContainer } from "./styled.components";
 
 export interface Tab<T extends string> {

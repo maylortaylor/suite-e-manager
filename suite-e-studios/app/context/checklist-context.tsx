@@ -97,16 +97,16 @@ export function ChecklistProvider({ children }: { children: React.ReactNode }) {
   // Store the unsubscribe function for the real-time listener
   const unsubscribeRef = React.useRef<(() => void) | null>(null);
 
-  const clearActiveChecklist = () => {
+  const clearActiveChecklist = React.useCallback(() => {
     // If there's an active listener, unsubscribe from it
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
       unsubscribeRef.current = null;
     }
     dispatch({ type: "CLEAR_ACTIVE_CHECKLIST" });
-  };
+  }, []);
 
-  const fetchFullChecklist = (checklistId: string) => {
+  const fetchFullChecklist = React.useCallback((checklistId: string) => {
     // Unsubscribe from any previous listener
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
@@ -191,7 +191,7 @@ export function ChecklistProvider({ children }: { children: React.ReactNode }) {
 
     // Store the new unsubscribe function
     unsubscribeRef.current = unsubscribe;
-  };
+  }, []);
 
   return (
     <ChecklistContext.Provider

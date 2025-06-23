@@ -253,3 +253,110 @@ Task 2 is complete. The login form now accepts a username. Please test the login
 ## Lessons
 
 *(No lessons yet)*
+
+# Project: Codebase Cleanup and Refactoring
+
+## Background and Motivation
+
+The user wants to improve the overall quality and maintainability of the codebase. Over time, development can lead to unused variables, imports, and code fragments. These artifacts increase cognitive load for developers, can sometimes hide bugs, and add unnecessary clutter. This project aims to systematically clean up the entire `suite-e-studios` application, removing dead code and ensuring consistency without altering any existing functionality.
+
+## Key Challenges and Analysis
+
+*   **Scope:** The cleanup needs to be comprehensive, covering all files within the `suite-e-studios` directory (components, screens, services, hooks, etc.).
+*   **Safety:** The primary challenge is to remove code without introducing regressions. Automated tools are essential, but manual verification is still required.
+*   **Tooling:** We will rely on the TypeScript compiler and ESLint to identify most of the unused code. We need to ensure our ESLint configuration is robust enough for this task. The rule `no-unused-vars` (and its TypeScript equivalent `@typescript-eslint/no-unused-vars`) is key.
+*   **Dynamic Usage:** Some code might appear unused to a static analyzer but could be used dynamically. This is less common in a strongly-typed TypeScript project but is a possibility to be aware of.
+
+## High-level Task Breakdown / Project Status Board
+
+This will be a phased approach, cleaning directory by directory to manage complexity and make verification easier.
+
+- [x] **Phase 1: ESLint Configuration Review and Enhancement**
+- [x] **Phase 2: Cleanup `components` Directory**
+- [x] **Phase 3: Cleanup `screens` Directory**
+- [x] **Phase 4: Cleanup `context`, `services`, and `hooks`**
+- [x] **Phase 5: Cleanup `types` and Root Files**
+- [x] **Final Verification**
+
+# Feature: Username/Password Authentication
+
+## Background and Motivation
+
+The goal is to allow users to log in to the application using a username and password combination instead of an email address. This provides a more traditional login experience. Since Firebase Authentication's standard email/password provider requires an email, we will implement a system where the application looks up the email associated with a given username from our Firestore database and then uses that email to authenticate with Firebase Auth.
+
+## Key Challenges and Analysis
+
+1.  **Data Seeding:** The user data in Firestore must be updated to include a `username` for each user. The seed script needs to be modified to handle this, including reading from a renamed data source file (`firebase.store-seed.json`).
+2.  **Authentication Flow:** The login UI and logic must be changed. The app will need to query Firestore to find the user's email based on the entered username before attempting to sign in with Firebase. This adds an extra step to the login process.
+3.  **User Experience:** Error handling needs to be clear. If a username isn't found, or if the password is correct, the user should receive a clear message without revealing whether the username or password was the incorrect part (to prevent username enumeration).
+
+## High-level Task Breakdown / Project Status Board
+
+- [x] **Task 1: Update Data Seeding Configuration**
+    - [x] Rename `suite-e-studios/global.checklists.json` to `suite-e-studios/firebase.store-seed.json`.
+    - [x] Confirm the user objects in `suite-e-studios/firebase.store-seed.json` contain `username` and `name` fields.
+    - [x] Modify `suite-e-studios/scripts/seed-firestore.js` to read from `suite-e-studios/firebase.store-seed.json`.
+    - [x] Update `suite-e-studios/scripts/seed-firestore.js` to save the `username` and `name` fields from the seed file into the `users` collection in Firestore.
+    - **Success Criteria:** The seed script runs without errors. After running, the `users` collection in the Firestore database contains documents for each user, and each document includes the `email`, `roleId`, `username`, and `name` fields.
+
+- [x] **Task 2: Implement Username/Password Login Flow**
+    - [x] Modify the authentication component at `suite-e-studios/app/components/auth/index.tsx`.
+    - [x] Change the input field from "Email" to "Username".
+    - [x] Implement the logic to:
+        1. Query the `users` collection in Firestore for the entered username.
+        2. Retrieve the corresponding email address.
+        3. Use the email and password to sign in with `signInWithEmailAndPassword`.
+    - [x] Implement appropriate error handling for invalid username or password.
+    - **Success Criteria:** A user can log in using their username and password. An invalid username or password results in a clear error message.
+
+## Executor's Feedback or Assistance Requests
+
+Task 1 is complete. The seed script has been updated. Please run the script and verify the data in Firestore.
+Task 2 is complete. The login form now accepts a username. Please test the login functionality.
+
+## Lessons
+
+*(No lessons yet)*
+
+# Project: Code Formatting Setup
+
+## Background and Motivation
+
+The user wants to automatically format the codebase to ensure consistent styling and improve readability. This is a standard best practice that makes the code easier to maintain. We will use Prettier, the de-facto standard code formatter, for this task.
+
+## High-level Task Breakdown / Project Status Board
+
+- [x] **Install Prettier**
+- [x] **Create Configuration File**
+- [x] **Add NPM Script**
+- [x] **Run Formatter**
+
+# Project: Fix Checklist Rendering Loop
+
+## Background and Motivation
+
+The user reported that the `ChecklistList` component is not appearing on the home screen. The browser console shows a "Maximum update depth exceeded" error, which indicates an infinite rendering loop. This is a critical bug that prevents a core part of the application from functioning.
+
+## Key Challenges and Analysis
+
+The root cause is a dependency cycle between the `HomeScreen` and the `ChecklistProvider`.
+
+1.  **`HomeScreen`**: A `useEffect` hook calls `fetchFullChecklist` and depends on it.
+2.  **`ChecklistProvider`**: The `fetchFullChecklist` function is defined within the component's body. When it runs, it dispatches a state update.
+3.  **The Loop**: The state update causes `ChecklistProvider` to re-render, which re-creates the `fetchFullChecklist` function instance. `HomeScreen` sees this new function as a changed dependency and triggers its `useEffect` again, creating an infinite loop.
+
+The solution is to memoize the function definitions in the provider using `React.useCallback` to ensure they have a stable identity across re-renders.
+
+## High-level Task Breakdown / Project Status Board
+
+- [x] **Task 1: Memoize Context Functions**
+    -   **Action:** Modify `suite-e-studios/app/context/checklist-context.tsx`. Wrap the `fetchFullChecklist` and `clearActiveChecklist` functions in `React.useCallback` with an empty dependency array (`[]`).
+    -   **Success Criteria:** The application no longer enters an infinite rendering loop. The checklist loads and displays correctly on the home screen after a user logs in.
+
+## Executor's Feedback or Assistance Requests
+
+The fix for the infinite loop has been applied by wrapping the context functions in `React.useCallback`. Please test the application to verify that the checklist now loads correctly on the home screen without causing the app to crash.
+
+## Lessons
+
+*(No lessons yet)*

@@ -11,6 +11,7 @@
     "web": "expo start --web",
     "web:build": "npx expo export --platform web",
     "web:build:static": "EXPO_WEB_OUTPUT=static expo export --platform web",
+    "format": "prettier --write \"{app,utils,hooks,constants,types}/**/*.{js,jsx,ts,tsx}\"",
     "expo:lint": "expo lint",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "test": "jest",
@@ -77,6 +78,8 @@
     "@types/react": "~19.1.8",
     "@types/react-native": "^0.73.0",
     "@types/styled-components-react-native": "^5.2.5",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
     "cross-env": "^7.0.3",
     "eslint": "^9.29.0",
     "eslint-config-expo": "~9.2.0",
@@ -84,9 +87,10 @@
     "firebase-tools": "^14.8.0",
     "jest": "^30.0.2",
     "jest-environment-jsdom": "^30.0.2",
-    "prettier": "^3.5.3",
+    "prettier": "^3.6.0",
     "ts-node": "^10.9.2",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.34.1"
   },
   "private": true
 }

@@ -4,21 +4,16 @@ import * as React from "react";
 import * as firestore from "../../services/firestore";
 
 import {
-  Image,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import {
   HomeContainer,
   WelcomeText,
 } from "@/app/components/ui/styled.components";
+import { Image, ScrollView, Text, TouchableOpacity } from "react-native";
 
 import { AppLayout } from "../../components/ui/AppLayout";
 import { ChecklistList } from "../../components/checklist";
 import { DrawerActions } from "@react-navigation/native";
 import { DrawerScreenProps } from "@react-navigation/drawer";
 import { LoginForm } from "../../components/auth";
-import { Text } from "react-native";
 import type { User } from "../../../types/user";
 import { auth } from "../../services/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -65,7 +60,7 @@ export function HomeScreen({ navigation }: Props) {
     return () => {
       clearActiveChecklist();
     };
-  }, [userState.user]);
+  }, [userState.user, fetchFullChecklist, clearActiveChecklist]);
 
   async function handleLogin(email: string, password: string) {
     userDispatch({ type: "SET_LOADING", isLoading: true });
@@ -96,17 +91,6 @@ export function HomeScreen({ navigation }: Props) {
       userDispatch({ type: "SET_LOADING", isLoading: false });
     }
   }
-
-  const handleSelectChecklist = (checklistId: string) => {
-    fetchFullChecklist(checklistId);
-  };
-
-  const formatRoleName = (roleId: string) => {
-    return roleId
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
 
   if (!userState.user) {
     return (
