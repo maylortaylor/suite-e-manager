@@ -48,6 +48,7 @@ The user wants to deploy the web version of the Suite E Studios app to a Google 
 
 # Executor's Feedback or Assistance Requests
 - All planned features for Firestore integration and Firebase Authentication are complete. The app now uses a cloud database for data and a real authentication system.
+- Google Sign-In code and UI have been fully removed from the frontend. The login screen now only supports username/password authentication.
 
 # Lessons
 - 'expo-error-reporter' is not available on npm; use Sentry or other error reporting tools instead.
@@ -362,77 +363,75 @@ The fix for the infinite loop has been applied by wrapping the context functions
 
 *(No lessons yet)*
 
-# Project: Google Calendar Integration (Read-Only)
+# Project: Google Calendar Integration (Service Account Method)
 
 ## Background and Motivation
 
-The user wants to view events from a specific Google Calendar (`suite.e.stpete@gmail.com`) directly within the application. This feature will centralize scheduling information, making it unnecessary for users to switch to an external calendar app. The new "Calendar" screen will be accessible from the navigation drawer and should display both public and any accessible private calendars for that account.
+The user wants all authenticated application users to view events from a single, specific Google Calendar: `suite.e.stpete@gmail.com`. The goal is to centralize scheduling information within the app, making it easily accessible without users needing to open an external calendar.
+
+This will be achieved using a secure backend-centric approach. Instead of asking each user to sign in with their Google account, we will use a **Google Service Account** (a special, non-human "robot" account) that is granted read-only access to the specific calendar. A Firebase Cloud Function will use this service account to fetch calendar events and securely provide them to the application's frontend. This method allows the application to view all necessary events (both public and private ones shared with the service account) without intrusive permission popups for the end-user.
 
 ## Key Challenges and Analysis
 
-1.  **Authentication & Authorization:** To access private Google Calendar data, the app must authenticate with Google. We will leverage Firebase's Google Sign-In provider. This requires configuring OAuth 2.0 in the Google Cloud Console and requesting the necessary `calendar.readonly` scope from the user upon sign-in.
-    - **Pitfall:** OAuth configuration is notoriously complex. Mismatched bundle IDs (iOS), package names (Android), or SHA-1 fingerprints in the Google Cloud Console will cause silent authentication failures.
-    - **Mitigation:** We will need to create a custom development build to test this, as it likely won't work in Expo Go. We must meticulously follow documentation for generating and adding credentials for each platform (iOS, Android, Web).
+1.  **Firebase Functions Setup:** The project does not currently have a backend Cloud Functions environment. This will require initializing the `functions` directory, installing dependencies (e.g., `firebase-functions`, `firebase-admin`, `googleapis`), and configuring the project for deployment.
 
-2.  **Google Calendar API:** We will use the Google Calendar API to fetch a list of the user's calendars and the events within them. This requires enabling the API in the Google Cloud project.
-    - **Pitfall:** The API has usage quotas. More importantly, handling asynchronous data fetching (first a list of calendars, then events for each) and correctly interpreting event timezones can be tricky.
-    - **Mitigation:** We will implement robust async logic (e.g., `Promise.all`) and use a library like `date-fns` if necessary to handle timezone conversions correctly, ensuring events display at the right local time for the user. We will also need to manage the OAuth access token's lifecycle.
+2.  **Service Account & Calendar Permissions (User Action):** The most critical step relies on the user. A Service Account must be created in the Google Cloud Console, and its private key must be made available to the Cloud Function environment. Then, the calendar (`suite.e.stpete@gmail.com`) must be manually shared with the Service Account's email address, granting it "See all event details" permission. Clear instructions for this process are essential.
 
-3.  **Calendar UI:** A dedicated UI component is needed to display events in a user-friendly format. We will use a third-party library like `react-native-calendars` to provide a familiar and interactive calendar interface.
-    - **Pitfall:** The third-party library may not integrate seamlessly with our existing theme context (`styled-components`). It will also have its own specific data structure requirements for displaying events.
-    - **Mitigation:** We will create a wrapper component for the calendar that transforms data from the Google API into the format the library expects. This wrapper will also be responsible for injecting theme colors into the library's styling props.
+3.  **Secure Backend Logic:** The Cloud Function must securely use the service account credentials to authenticate with the Google Calendar API. It will need to handle API calls to list events, manage potential errors, and format the data in a way that is easy for the frontend to consume.
 
-4.  **Navigation:** A new screen and a corresponding button in the drawer are needed to make the feature accessible.
-    - **Pitfall:** This is a relatively low-risk task, but incorrect modifications to the navigation files could disrupt the entire app's navigation flow.
-    - **Mitigation:** We will add the new screen and drawer item carefully, following the existing patterns in `drawer-navigator.tsx` and `CustomDrawerContent.tsx`.
-
-5.  **Secure Credential Handling:** All client IDs and secrets must be managed securely using environment variables, consistent with the project's existing setup.
-    - **Pitfall:** Forgetting to add new environment variables (e.g., `GOOGLE_WEB_CLIENT_ID`) to the `.env.example` file and the GitHub Actions secrets configuration will break local development for other contributors and fail the CI/CD pipeline.
-    - **Mitigation:** We will ensure that any new environment variable is immediately added to the template and documented.
+4.  **Frontend Integration:** The application's frontend (the new "Calendar" screen) will need to be modified to call this new Cloud Function. This involves using the Firebase Functions SDK and handling the asynchronous data flow, including loading and error states.
 
 ## High-level Task Breakdown / Project Status Board
 
-- [ ] **Task 1: Implement Google OAuth Authentication**
-    - [x] Integrate Firebase Authentication with the Google provider, including configuring the required OAuth client IDs in the Google Cloud Console.
-    - [x] Request the `https://www.googleapis.com/auth/calendar.readonly` scope during the sign-in flow.
-    - [x] Add a "Sign in with Google" button to the login screen.
-    - **Success Criteria:** A user can sign in with the `suite.e.stpete@gmail.com` Google account, and the application successfully obtains an access token for the Calendar API.
+-   [ ] **Task 1: Clean Up Previous Implementation**
+    -   [x] Uninstall the `@react-native-google-signin/google-signin` package.
+    -   [x] Remove all related code from `app/services/google/auth.ts`, `app/context/user-context.tsx`, `app/components/auth/index.tsx`, and `app/_layout.tsx`.
+    -   [x] Revert the `headers` configuration in `firebase.json`, as it is no longer needed.
+    -   **Success Criteria:** The application builds and runs without any errors related to the previous Google Sign-In attempt. The "Sign in with Google" button is gone.
 
-- [ ] **Task 2: Create Calendar Screen and Navigation**
-    - [ ] Create a new screen file at `suite-e-studios/app/screens/calendar/index.tsx`.
-    - [ ] Add the new `CalendarScreen` to the drawer navigator in `suite-e-studios/app/navigation/drawer-navigator.tsx`.
-    - [ ] Add a "Calendar" button to the drawer's UI in `suite-e-studios/app/components/ui/CustomDrawerContent.tsx`, positioned below the "Home" button.
-    - **Success Criteria:** A "Calendar" option appears in the navigation drawer. Tapping it navigates the user to a new, empty "Calendar" screen.
+-   [ ] **Task 2: Set Up Firebase Cloud Functions**
+    -   [ ] Run `firebase init functions` at the project root to create the `functions` directory.
+    -   [ ] Choose TypeScript as the language.
+    -   [ ] Install necessary dependencies: `googleapis`.
+    -   **Success Criteria:** A `functions` directory exists with a default `index.ts` file, and `firebase deploy --only functions` runs successfully (even with no functions).
 
-- [ ] **Task 3: Fetch and Display Calendar Data**
-    - [ ] Install a calendar UI library, such as `react-native-calendars`.
-    - [ ] On the `CalendarScreen`, use the access token from the authenticated user to query the Google Calendar API (`calendarList.list` and `events.list`).
-    - [ ] Render the fetched events in the calendar component.
-    - **Success Criteria:** When a user navigates to the calendar screen, it displays events from their Google Calendar. The user can interact with the calendar to view different dates.
+-   [ ] **Task 3: Configure Service Account & Calendar Access (User Action)**
+    -   [ ] I will provide instructions for the user to:
+        1.  Create a Service Account in the Google Cloud Console.
+        2.  Enable the Google Calendar API for the project.
+        3.  Download the JSON private key for the service account.
+        4.  Share the `suite.e.stpete@gmail.com` calendar with the Service Account's email, granting "See all event details" permissions.
+    -   [ ] The user will need to securely provide the service account key and the calendar ID.
+    -   **Success Criteria:** The user has a service account key and has confirmed that the calendar is shared correctly.
 
-- [ ] **Task 4: Refine UI and Handle Edge Cases**
-    - [ ] Implement loading indicators for when calendar data is being fetched.
-    - [ ] Add clear error messages for API failures or if no calendars are found.
-    - [ ] Ensure the calendar UI component is theme-aware, adapting to light and dark modes.
-    - **Success Criteria:** The calendar screen provides a robust and user-friendly experience, gracefully handling loading, error, and empty states.
+-   [ ] **Task 4: Develop Backend Cloud Function**
+    -   [ ] Create a new callable Cloud Function named `getCalendarEvents`.
+    -   [ ] Add logic to authenticate with the Google Calendar API using the service account credentials.
+    -   [ ] The function will fetch all events for the next year from the specified calendar ID.
+    -   [ ] It will format the events into a clean JSON array and return them.
+    -   **Success Criteria:** The function can be deployed and, when called, successfully returns a list of calendar events.
+
+-   [ ] **Task 5: Create Calendar Screen and Navigation**
+    -   [ ] Create a new screen file at `suite-e-studios/app/screens/calendar/index.tsx`.
+    -   [ ] Add a "Calendar" button to the drawer UI in `suite-e-studios/app/components/ui/CustomDrawerContent.tsx`, positioned below "Home".
+    -   **Success Criteria:** A "Calendar" option appears in the navigation drawer and navigates to the new, empty screen.
+
+-   [ ] **Task 6: Integrate Frontend with Cloud Function**
+    -   [ ] Install a calendar UI library (e.g., `react-native-calendars`).
+    -   [ ] In the `CalendarScreen`, use a `useEffect` hook to call the `getCalendarEvents` Cloud Function.
+    -   [ ] Manage loading and error states during the fetch.
+    -   [ ] Transform the event data into the format required by the UI library.
+    -   [ ] Render the events on the calendar.
+    -   **Success Criteria:** When a user navigates to the calendar screen, it displays events from the `suite.e.stpete@gmail.com` calendar.
 
 ## Executor's Feedback or Assistance Requests
 
-**Task 1 (Implement Google OAuth Authentication) is now ready for testing.**
-
-After recovering from an accidental file deletion, the core code has been successfully re-implemented:
-- The Google Sign-In package has been installed correctly.
-- A new service was created at `suite-e-studios/app/services/google/auth.ts`.
-- The `UserContext` has been updated to handle the authentication flow.
-- A "Sign in with Google" button has been added to the login screen.
-- All files are in their correct locations.
-
-**Next Steps:**
-- The user needs to verify the `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` environment variable is present locally in `.env` and has been added to GitHub secrets.
-- Proceed with testing the sign-in flow.
+*(Awaiting start of new plan)*
 
 ## Lessons
 
+- For displaying a specific, app-owned resource (like a company calendar), a Service Account is the correct, secure, and user-friendly approach, not user-level OAuth.
+- Cross-Origin (COOP/COEP) header issues are common with web popup authentication flows and require specific server-side configuration (e.g., in `firebase.json`) for the production environment.
 - **Critical:** Be extremely careful with `rm -rf`. Always double-check the current working directory (`pwd`) before executing destructive commands. A safer way to recover from mistakes is `git restore <file>` or `git checkout HEAD -- <directory>`.
 
 *(No lessons yet)*

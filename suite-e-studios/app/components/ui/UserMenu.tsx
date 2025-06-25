@@ -75,7 +75,7 @@ export function UserMenu() {
                 <MenuButton
                   onPress={() => {
                     setMenuVisible(false);
-                    navigation.navigate("Checklists");
+                    navigation.navigate("Checklists", { tab: "tasks" } as any);
                   }}
                   accessibilityRole="button"
                 >

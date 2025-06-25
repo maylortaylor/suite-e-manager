@@ -14,11 +14,13 @@ import { EditChecklistsScreen } from "./edit-checklists";
 import { EditTaskListsScreen } from "./edit-task-lists";
 import { EditTasksScreen } from "./edit-tasks";
 import { View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 type Props = DrawerScreenProps<DrawerParamList, "task-editor">;
 type ChecklistTab = "tasks" | "tasklists" | "checklists";
 
-export function ChecklistsScreen({ navigation }: Props) {
+export function ChecklistsScreen({ }: Props) {
+  const navigation = useNavigation();
   const route = useRoute();
   const [activeTab, setActiveTab] = useState<ChecklistTab>("tasks");
 
@@ -37,7 +39,7 @@ export function ChecklistsScreen({ navigation }: Props) {
 
   const handleTabPress = (target: ChecklistTab) => {
     setActiveTab(target);
-    navigation.setParams({ tab: target });
+    navigation.setParams({ tab: target } as any);
   };
 
   return (
