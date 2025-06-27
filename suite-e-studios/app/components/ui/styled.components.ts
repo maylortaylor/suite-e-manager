@@ -5,6 +5,15 @@ import { FontSizes, getScaledFontSize } from "@/utils/font-scaling";
 import type { DefaultTheme } from "styled-components";
 import styled from "styled-components/native";
 
+export const CalendarContainer = styled.View<{ theme: DefaultTheme }>`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.md}px;
+  background-color: ${({ theme }: { theme: DefaultTheme }) =>
+    theme.colors.background};
+`;
+
 export const Input = styled.TextInput<{ theme: DefaultTheme }>`
   background-color: ${({ theme }: { theme: DefaultTheme }) =>
     theme.colors.input};

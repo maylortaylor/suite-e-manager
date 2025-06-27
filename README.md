@@ -1,5 +1,7 @@
 # Suite E Studios – Monorepo Overview
 
+GOOGLE CALENDAR ACCESS - calendar-reader@social-media-manager-eb123.iam.gserviceaccount.com
+
 ## Project Goal
 Suite E Studios is a robust, user-friendly mobile and web application for event management, task scheduling, and role-based workflows. The app integrates with Google Drive, Calendar, and Forms to centralize data and streamline operations for studio staff and admins. The web version is deployed via Firebase Hosting.
 

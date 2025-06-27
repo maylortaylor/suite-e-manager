@@ -31,6 +31,7 @@ module.exports = {
     "indent": ["error", 2],
     "object-curly-spacing": ["off"],
     "@typescript-eslint/object-curly-spacing": ["off"],
+    "max-len": ["warn", { "code": 120 }],
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {

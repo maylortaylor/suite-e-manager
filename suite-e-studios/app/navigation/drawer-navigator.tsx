@@ -5,6 +5,7 @@ import {
   createDrawerNavigator,
 } from "@react-navigation/drawer";
 
+import CalendarScreen from "../screens/calendar";
 import { ChecklistsScreen } from "../screens/checklists";
 import { CustomDrawerContent } from "../components/ui/CustomDrawerContent";
 import { HomeScreen } from "../screens/home";
@@ -13,6 +14,7 @@ import { useTheme } from "styled-components/native";
 
 export type DrawerParamList = {
   Home: undefined;
+  Calendar: undefined;
   "task-editor": { tab?: "tasks" | "tasklists" | "checklists" };
   Settings: undefined;
 };
@@ -36,6 +38,7 @@ export function DrawerNavigator() {
       }}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />
+      <Drawer.Screen name="Calendar" component={CalendarScreen} />
       <Drawer.Screen
         name="task-editor"
         component={ChecklistsScreen}

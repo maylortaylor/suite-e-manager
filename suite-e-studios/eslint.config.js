@@ -16,6 +16,7 @@ module.exports = defineConfig([
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
+          maxLength: 120,
           args: "all",
           argsIgnorePattern: "^_",
           caughtErrors: "all",

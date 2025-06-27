@@ -80,6 +80,10 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
           label="Home"
           onPress={() => props.navigation.navigate("Home")}
         />
+        <CustomDrawerItem
+          label="Calendar"
+          onPress={() => props.navigation.navigate("Calendar")}
+        />
         {/* Custom items */}
         <View
           style={{

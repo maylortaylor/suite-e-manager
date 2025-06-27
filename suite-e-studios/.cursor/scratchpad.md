@@ -45,10 +45,15 @@ The user wants to deploy the web version of the Suite E Studios app to a Google 
 - [ ] Document deployment process
 - [ ] Use categories/roles as dropdowns in task builder/new task form
 - [ ] Use roles as dropdown in checklist form
+- [ ] **Task 5: Create Calendar Screen and Navigation**
+    - [ ] Create a new screen file at `suite-e-studios/app/screens/calendar/index.tsx`.
+    - [ ] Add a "Calendar" button to the drawer UI in `suite-e-studios/app/components/ui/CustomDrawerContent.tsx`, positioned below "Home".
+    - **Success Criteria:** A "Calendar" option appears in the navigation drawer and navigates to the new, empty screen.
 
 # Executor's Feedback or Assistance Requests
 - All planned features for Firestore integration and Firebase Authentication are complete. The app now uses a cloud database for data and a real authentication system.
 - Google Sign-In code and UI have been fully removed from the frontend. The login screen now only supports username/password authentication.
+- Starting implementation of the Google Calendar integration: creating the Calendar screen, adding it to the drawer, and preparing for backend integration.
 
 # Lessons
 - 'expo-error-reporter' is not available on npm; use Sentry or other error reporting tools instead.
