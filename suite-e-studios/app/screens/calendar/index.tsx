@@ -1,9 +1,24 @@
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Linking, Platform, Text } from 'react-native';
+import {
+  CalendarContainer,
+  CalendarEventCard,
+  CalendarEventChip,
+  CalendarEventChipText,
+  CalendarEventDetail,
+  CalendarEventLabel,
+  CalendarEventTitle,
+  CalendarEventWrapper,
+  CalendarMonthDividerContainer,
+  CalendarMonthDividerLine,
+  CalendarMonthDividerText,
+  Divider,
+  Divider as ThemedDivider,
+} from '@/app/components/ui/styled.components';
 import React, { useEffect, useState } from 'react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { useTheme } from "styled-components/native";
-import { CalendarContainer } from '@/app/components/ui/styled.components';
+
 import { getApp } from 'firebase/app';
+import { useTheme } from "styled-components/native";
 
 // Helper to format date/time
 function formatEventTime(start: any) {
@@ -44,6 +59,28 @@ function getEventColor(theme: any, event: any) {
   }
 }
 
+// Helper to strip HTML tags from a string
+function stripHtml(html: string) {
+  if (!html) return '';
+  return html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
+}
+
+// Accent chip for event visibility
+const Chip: React.FC<{ label: string; color: string }> = ({ label, color }) => (
+  <CalendarEventChip color={color}>
+    <CalendarEventChipText>{label}</CalendarEventChipText>
+  </CalendarEventChip>
+);
+
+// Month divider
+const MonthDivider: React.FC<{ month: string }> = ({ month }) => (
+  <CalendarMonthDividerContainer>
+    <CalendarMonthDividerLine />
+    <CalendarMonthDividerText>{month}</CalendarMonthDividerText>
+    <CalendarMonthDividerLine />
+  </CalendarMonthDividerContainer>
+);
+
 const CalendarScreen = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,52 +105,105 @@ const CalendarScreen = () => {
     fetchEvents();
   }, []);
 
+  // Helper to get month label (e.g., July 2024)
+  function getMonthLabel(dateStr: string) {
+    const date = new Date(dateStr);
+    return date.toLocaleString(undefined, { month: 'long', year: 'numeric' });
+  }
+
+  // Prepare data with month dividers
+  let lastMonth = '';
+  const dataWithDividers: any[] = [];
+  events.forEach((event) => {
+    const eventDate = event.start?.dateTime || event.start?.date;
+    const monthLabel = getMonthLabel(eventDate);
+    if (monthLabel !== lastMonth) {
+      dataWithDividers.push({ type: 'divider', month: monthLabel, id: `divider-${monthLabel}` });
+      lastMonth = monthLabel;
+    }
+    dataWithDividers.push({ ...event, type: 'event' });
+  });
+
   return (
     <CalendarContainer>
       {loading && <ActivityIndicator size="large" color="#888" />}
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error && <Text style={{ color: 'red', marginBottom: 16 }}>{error}</Text>}
       {!loading && !error && (
         <FlatList
-          data={events}
-          keyExtractor={item => item.id}
-          renderItem={({ item }) => (
-            <View style={[styles.eventItem, { backgroundColor: getEventColor(theme, item) }]}>
-              <Text style={styles.eventTitle}>{item.summary || 'No Title'}</Text>
-              <Text style={styles.eventTime}>{formatEventTime(item.start)}</Text>
-              {item.location && <Text style={styles.eventLocation}>{item.location}</Text>}
-            </View>
-          )}
+          data={dataWithDividers}
+          keyExtractor={item => item.id || item.month}
+          renderItem={({ item }) => {
+            if (item.type === 'divider') {
+              return <MonthDivider month={item.month} />;
+            }
+            const eventColor = getEventColor(theme, item);
+            return (
+              <CalendarEventWrapper>
+                <CalendarEventCard style={{ backgroundColor: eventColor }}>
+                  <Chip label={item.visibility?.charAt(0).toUpperCase() + item.visibility?.slice(1)} color={theme.colors.accent} />
+                  <CalendarEventTitle>{item.summary || 'No Title'}</CalendarEventTitle>
+                  <Divider
+                    orientation="horizontal"
+                    thickness={1}
+                    marginVertical={20}
+                    marginHorizontal={0}
+                    color={theme.colors.text}
+                  />
+                  <CalendarEventDetail>
+                    <CalendarEventLabel>Time: </CalendarEventLabel>{formatEventTime(item.start)}
+                  </CalendarEventDetail>
+                  {item.location && (
+                    <CalendarEventDetail>
+                      <CalendarEventLabel>Location: </CalendarEventLabel>{item.location}
+                    </CalendarEventDetail>
+                  )}
+                  {item.description && (
+                    <CalendarEventDetail>
+                      <CalendarEventLabel>Description: </CalendarEventLabel>{stripHtml(item.description)}
+                    </CalendarEventDetail>
+                  )}
+                  {item.organizer && (
+                    <CalendarEventDetail>
+                      <CalendarEventLabel>Organizer: </CalendarEventLabel>{item.organizer.email || item.organizer.displayName}
+                    </CalendarEventDetail>
+                  )}
+                  {item.status && (
+                    <CalendarEventDetail>
+                      <CalendarEventLabel>Status: </CalendarEventLabel>{item.status}
+                    </CalendarEventDetail>
+                  )}
+                  {item.attendees && item.attendees.length > 0 && (
+                    <CalendarEventDetail>
+                      <CalendarEventLabel>Attendees: </CalendarEventLabel>{item.attendees.map((a: any) => a.email || a.displayName).join(', ')}
+                    </CalendarEventDetail>
+                  )}
+                  {item.htmlLink && (
+                    <CalendarEventDetail>
+                      <CalendarEventLabel>Google Calendar: </CalendarEventLabel>
+                      <Text
+                        style={{ color: theme.colors.accent, textDecorationLine: 'underline' }}
+                        accessibilityRole="link"
+                        onPress={() => {
+                          if (Platform.OS === 'web') {
+                            window.open(item.htmlLink, '_blank', 'noopener');
+                          } else {
+                            Linking.openURL(item.htmlLink);
+                          }
+                        }}
+                      >
+                        GOOGLE CALENDAR LINK
+                      </Text>
+                    </CalendarEventDetail>
+                  )}
+                </CalendarEventCard>
+              </CalendarEventWrapper>
+            );
+          }}
           ListEmptyComponent={<Text>No events found.</Text>}
         />
       )}
     </CalendarContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  error: {
-    color: 'red',
-    marginBottom: 16,
-  },
-  eventItem: {
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
-    width: '100%',
-  },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  eventTime: {
-    fontSize: 14,
-    color: '#373A40',
-  },
-  eventLocation: {
-    fontSize: 14,
-    color: '#373A40',
-  },
-});
 
 export default CalendarScreen; 

@@ -549,3 +549,76 @@ export const Divider = styled.View<{ theme: DefaultTheme }>`
   margin-vertical: ${({ theme }: { theme: DefaultTheme }) =>
     theme.global.spacing.md}px;
 `;
+
+export const CalendarEventWrapper = styled.View`
+  width: 100%;
+  align-items: center;
+`;
+
+export const CalendarEventCard = styled.View<{ theme: DefaultTheme }>`
+  margin-bottom: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.xl}px;
+  padding: ${({ theme }: { theme: DefaultTheme }) => theme.global.spacing.lg}px;
+  border-radius: ${({ theme }: { theme: DefaultTheme }) => theme.global.borderRadius.lg}px;
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  background-color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.background};
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  elevation: 2;
+`;
+
+export const CalendarEventChip = styled.View<{ color: string }>`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background-color: ${({ color }: { color: string }) => color};
+  z-index: 2;
+`;
+
+export const CalendarEventChipText = styled.Text`
+  color: #fff;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+`;
+
+export const CalendarEventTitle = styled.Text<{ theme: DefaultTheme }>`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  padding-right: 80px;
+`;
+
+export const CalendarEventDetail = styled.Text<{ theme: DefaultTheme }>`
+  font-size: 15px;
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
+  margin-bottom: 4px;
+`;
+
+export const CalendarEventLabel = styled.Text<{ theme: DefaultTheme }>`
+  font-weight: bold;
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.accent};
+`;
+
+export const CalendarMonthDividerContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-vertical: 18px;
+  width: 100%;
+`;
+
+export const CalendarMonthDividerLine = styled.View`
+  flex: 1;
+  height: 1px;
+  background-color: #e0e0e0;
+`;
+
+export const CalendarMonthDividerText = styled.Text`
+  margin-horizontal: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #888;
+`;
