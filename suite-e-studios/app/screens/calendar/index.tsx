@@ -137,6 +137,8 @@ const CalendarScreen = () => {
               return <MonthDivider month={item.month} />;
             }
             const eventColor = getEventColor(theme, item);
+            console.log(item);
+            
             return (
               <CalendarEventWrapper>
                 <CalendarEventCard style={{ backgroundColor: eventColor }}>
@@ -164,7 +166,7 @@ const CalendarScreen = () => {
                   )}
                   {item.organizer && (
                     <CalendarEventDetail>
-                      <CalendarEventLabel>Organizer: </CalendarEventLabel>{item.organizer.email || item.organizer.displayName}
+                      <CalendarEventLabel>Organizer: </CalendarEventLabel>{item.organizer.displayName}
                     </CalendarEventDetail>
                   )}
                   {item.status && (
@@ -181,7 +183,7 @@ const CalendarScreen = () => {
                     <CalendarEventDetail>
                       <CalendarEventLabel>Google Calendar: </CalendarEventLabel>
                       <Text
-                        style={{ color: theme.colors.accent, textDecorationLine: 'underline' }}
+                        style={{ color: theme.colors.darkText, textDecorationLine: 'underline' }}
                         accessibilityRole="link"
                         onPress={() => {
                           if (Platform.OS === 'web') {

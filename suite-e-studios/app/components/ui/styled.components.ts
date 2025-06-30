@@ -600,7 +600,8 @@ export const CalendarEventDetail = styled.Text<{ theme: DefaultTheme }>`
 
 export const CalendarEventLabel = styled.Text<{ theme: DefaultTheme }>`
   font-weight: bold;
-  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.accent};
+  text-decoration-line: underline;
+  color: ${({ theme }: { theme: DefaultTheme }) => theme.colors.darkText};
 `;
 
 export const CalendarMonthDividerContainer = styled.View`
